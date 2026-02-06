@@ -596,6 +596,49 @@
         .endstop-item .type.probe { color: var(--accent); }
         .endstop-item .type.physical { color: var(--warning); }
 
+        .includes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .include-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.4rem;
+            background: var(--bg-primary);
+            border-radius: 3px;
+            font-size: 0.65rem;
+            font-family: 'SF Mono', Consolas, monospace;
+            color: var(--text-secondary);
+        }
+
+        .include-item::before {
+            content: '→';
+            color: var(--text-muted);
+        }
+
+        .conflict-item {
+            padding: 0.4rem 0.5rem;
+            background: rgba(224, 108, 117, 0.1);
+            border-radius: 4px;
+            margin-bottom: 0.3rem;
+            border-left: 2px solid var(--error);
+        }
+
+        .conflict-pin {
+            font-family: 'SF Mono', Consolas, monospace;
+            font-weight: 600;
+            color: var(--error);
+        }
+
+        .conflict-uses {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            margin-top: 0.2rem;
+        }
+
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: var(--bg-tertiary); }
         ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
@@ -641,7 +684,7 @@
                         <span class="card-title">Configuration</span>
                     </div>
                     <div class="card-body">
-                        <textarea id="configInput" placeholder="Paste your printer.cfg stepper and TMC sections here..."></textarea>
+                        <textarea id="configInput" placeholder="Paste your printer.cfg here..."></textarea>
                         <div class="btn-row">
                             <button class="btn-primary" onclick="parseConfig()">Map Pins</button>
                             <button class="btn-secondary" onclick="clearAll()">Clear</button>
@@ -655,6 +698,29 @@
                     </div>
                     <div class="card-body">
                         <div class="detection-debug" id="detectionDebug"></div>
+                    </div>
+                </div>
+
+                <div class="card" id="includesCard" style="display: none;">
+                    <div class="card-header">
+                        <span class="card-title">Included Files</span>
+                        <span id="includesCount" style="font-size: 0.65rem; color: var(--text-muted);"></span>
+                    </div>
+                    <div class="card-body">
+                        <div class="includes-list" id="includesList"></div>
+                        <div style="font-size: 0.6rem; color: var(--text-muted); margin-top: 0.5rem;">
+                            Some config sections may be in these files
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" id="conflictsCard" style="display: none;">
+                    <div class="card-header">
+                        <span class="card-title">Pin Conflicts</span>
+                        <span id="conflictsCount" style="font-size: 0.65rem; color: var(--error);"></span>
+                    </div>
+                    <div class="card-body">
+                        <div id="conflictsList"></div>
                     </div>
                 </div>
 
@@ -698,7 +764,7 @@
                         <div class="tab-content active" id="boardTab">
                             <div class="board-container" id="boardContainer">
                                 <div class="empty-state" id="emptyState">
-                                    <p>Paste configuration and click "Map Pins"</p>
+                                    <p>Paste your printer.cfg and click "Map Pins"</p>
                                 </div>
                                 <div id="boardViz" style="display: none;"></div>
                             </div>
@@ -999,6 +1065,85 @@
             return spiPins;
         }
 
+        function extractIncludes(text) {
+            const includes = [];
+            const lines = text.split('\n');
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (trimmed.startsWith('[include ') && trimmed.endsWith(']')) {
+                    const path = trimmed.slice(9, -1).trim();
+                    includes.push(path);
+                } else if (trimmed.startsWith('#[include ') && trimmed.endsWith(']')) {
+                    // Commented out include - skip
+                }
+            }
+            return includes;
+        }
+
+        function detectPinConflicts(sections) {
+            const pinUsage = {}; // pin -> [{section, function}]
+            
+            // Define which keys are pin assignments
+            const pinKeys = [
+                'step_pin', 'dir_pin', 'enable_pin', 'uart_pin', 'cs_pin',
+                'endstop_pin', 'heater_pin', 'sensor_pin', 'fan_pin', 'pin',
+                'pwm_pin', 'tach_pin', 'diag_pin', 'diag0_pin', 'diag1_pin',
+                'spi_software_sclk_pin', 'spi_software_mosi_pin', 'spi_software_miso_pin',
+                'tx_pin', 'rx_pin', 'scl_pin', 'sda_pin',
+                'shutdown_pin', 'value_pin', 'enable_pin'
+            ];
+
+            for (const [sectionName, cfg] of Object.entries(sections)) {
+                for (const [key, value] of Object.entries(cfg)) {
+                    if (!pinKeys.includes(key)) continue;
+                    if (!value) continue;
+                    
+                    // Skip virtual endstops and probe references
+                    if (value.includes('virtual_endstop') || value.includes('probe:')) continue;
+                    
+                    // Normalize the pin
+                    const pin = normalizePin(value);
+                    if (!pin) continue;
+                    
+                    // Skip external MCU pins for now (different namespace)
+                    if (isExternalMcu(value)) continue;
+                    
+                    if (!pinUsage[pin]) {
+                        pinUsage[pin] = [];
+                    }
+                    pinUsage[pin].push({
+                        section: sectionName,
+                        function: key,
+                        raw: value
+                    });
+                }
+            }
+
+            // Find conflicts (pins used more than once for different purposes)
+            const conflicts = [];
+            for (const [pin, uses] of Object.entries(pinUsage)) {
+                if (uses.length > 1) {
+                    // Check if it's actually a conflict or legitimate shared use
+                    // SPI pins are shared across drivers - that's OK
+                    const spiPins = ['spi_software_sclk_pin', 'spi_software_mosi_pin', 'spi_software_miso_pin'];
+                    const allSpi = uses.every(u => spiPins.includes(u.function));
+                    if (allSpi) continue;
+                    
+                    // UART/CS pins being used as both uart_pin and cs_pin in same section is OK
+                    const uartCsPins = ['uart_pin', 'cs_pin'];
+                    const sameSection = uses.length === 2 && 
+                        uses[0].section === uses[1].section &&
+                        uartCsPins.includes(uses[0].function) &&
+                        uartCsPins.includes(uses[1].function);
+                    if (sameSection) continue;
+
+                    conflicts.push({ pin, uses });
+                }
+            }
+
+            return conflicts;
+        }
+
         function detectBoard(sections) {
             const pinInfo = extractPinInfo(sections);
             const results = [];
@@ -1113,6 +1258,53 @@
                 </div>`;
             }
             container.innerHTML = html;
+        }
+
+        function renderIncludes(includes) {
+            const card = document.getElementById('includesCard');
+            const list = document.getElementById('includesList');
+            const count = document.getElementById('includesCount');
+
+            if (includes.length === 0) {
+                card.style.display = 'none';
+                return;
+            }
+
+            card.style.display = 'block';
+            count.textContent = includes.length;
+
+            let html = '';
+            for (const inc of includes) {
+                html += `<div class="include-item">${inc}</div>`;
+            }
+            list.innerHTML = html;
+        }
+
+        function renderConflicts(conflicts) {
+            const card = document.getElementById('conflictsCard');
+            const list = document.getElementById('conflictsList');
+            const count = document.getElementById('conflictsCount');
+
+            if (conflicts.length === 0) {
+                card.style.display = 'none';
+                return;
+            }
+
+            card.style.display = 'block';
+            count.textContent = conflicts.length;
+
+            let html = '';
+            for (const conflict of conflicts) {
+                const usesList = conflict.uses
+                    .map(u => `${u.section} (${u.function})`)
+                    .join(', ');
+                
+                html += `<div class="conflict-item">
+                    <div class="conflict-pin">${conflict.pin}</div>
+                    <div class="conflict-uses">Used by: ${usesList}</div>
+                </div>`;
+            }
+            list.innerHTML = html;
         }
 
         function extractMotors(sections) {
@@ -1638,6 +1830,9 @@
 
             const sections = parseKlipperConfig(text);
             const motors = extractMotors(sections);
+            const includes = extractIncludes(text);
+            const conflicts = detectPinConflicts(sections);
+
             if (motors.length === 0) { alert('No stepper motors found.'); return; }
 
             const boardSelect = document.getElementById('boardSelect');
@@ -1664,7 +1859,7 @@
             }
 
             currentBoard = BOARDS[boardId];
-            parsedConfig = { sections, motors };
+            parsedConfig = { sections, motors, includes, conflicts };
 
             const { slotMap, issues, externalMotors } = mapMotorsToSlots(motors, currentBoard);
 
@@ -1672,6 +1867,8 @@
             document.getElementById('boardViz').style.display = 'block';
             document.getElementById('vizTitle').textContent = currentBoard.name;
 
+            renderIncludes(includes);
+            renderConflicts(conflicts);
             renderBoardViz(currentBoard, slotMap, issues, externalMotors);
             renderIssues(issues, currentBoard);
             renderComparisonTable(currentBoard, motors, slotMap);
@@ -1708,6 +1905,8 @@
             document.getElementById('statsCard').style.display = 'none';
             document.getElementById('issuesCard').style.display = 'none';
             document.getElementById('detectionCard').style.display = 'none';
+            document.getElementById('includesCard').style.display = 'none';
+            document.getElementById('conflictsCard').style.display = 'none';
             document.getElementById('boardSelect').value = 'auto';
             document.getElementById('detectedBadge').style.display = 'none';
             document.getElementById('tableContainer').innerHTML = `<div class="empty-state"><p>No data</p></div>`;

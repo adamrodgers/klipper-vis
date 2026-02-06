@@ -205,7 +205,7 @@
             background: var(--bg-card);
             border-radius: 12px;
             padding: 1.5rem;
-            min-height: 500px;
+            min-height: calc(100vh - 300px);
         }
 
         .board-outline {
@@ -547,8 +547,13 @@
         }
 
         .table-container {
-            max-height: 400px;
+            max-height: calc(100vh - 300px);
+            min-height: 400px;
             overflow-y: auto;
+        }
+
+        .board-container {
+            min-height: calc(100vh - 300px);
         }
 
         .detection-debug {
@@ -1520,7 +1525,119 @@
 
         function loadExample() {
             // Kraken example config
-            document.getElementById('configInput').value = ``;
+            document.getElementById('configInput').value = `[stepper_x]
+step_pin: PC14
+dir_pin: !PC13
+enable_pin: !PE6
+rotation_distance: 40
+microsteps: 16
+endstop_pin: tmc5160_stepper_x:virtual_endstop
+position_min: 0
+position_endstop: 350
+position_max: 355
+homing_speed: 80
+homing_retract_dist: 0
+homing_positive_dir: True
+
+[tmc5160 stepper_x]
+cs_pin: PD6
+diag1_pin: ^!PC15
+spi_software_sclk_pin: PC6
+spi_software_mosi_pin: PC8
+spi_software_miso_pin: PC7
+run_current: 1.4
+driver_SGT: 1
+sense_resistor: 0.05
+
+[stepper_y]
+step_pin: PE2
+dir_pin: !PE1
+enable_pin: !PE0
+rotation_distance: 40
+microsteps: 16
+endstop_pin: PC0
+position_min: 0
+position_endstop: 360
+position_max: 364
+homing_speed: 100
+homing_retract_dist: 0
+homing_positive_dir: true
+
+[tmc5160 stepper_y]
+cs_pin: PD4
+spi_software_sclk_pin: PC6
+spi_software_mosi_pin: PC8
+spi_software_miso_pin: PC7
+run_current: 1.4
+sense_resistor: 0.05
+
+[stepper_z]
+step_pin: PB4
+dir_pin: PB3
+enable_pin: !PB5
+rotation_distance: 40
+gear_ratio: 80:12
+microsteps: 16
+endstop_pin: probe:z_virtual_endstop
+position_max: 347
+position_min: -5
+homing_speed: 15.0
+
+[tmc5160 stepper_z]
+cs_pin: PA9
+spi_software_sclk_pin: PC6
+spi_software_mosi_pin: PC8
+spi_software_miso_pin: PC7
+run_current: 0.800
+sense_resistor: 0.075
+
+[stepper_z1]
+step_pin: PG9
+dir_pin: !PG10
+enable_pin: !PG13
+rotation_distance: 40
+gear_ratio: 80:12
+microsteps: 16
+
+[tmc5160 stepper_z1]
+cs_pin: PD2
+spi_software_sclk_pin: PC6
+spi_software_mosi_pin: PC8
+spi_software_miso_pin: PC7
+run_current: 0.800
+sense_resistor: 0.075
+
+[stepper_z2]
+step_pin: PG11
+dir_pin: PD7
+enable_pin: !PG12
+rotation_distance: 40
+gear_ratio: 80:12
+microsteps: 16
+
+[tmc5160 stepper_z2]
+cs_pin: PA15
+spi_software_sclk_pin: PC6
+spi_software_mosi_pin: PC8
+spi_software_miso_pin: PC7
+run_current: 0.800
+sense_resistor: 0.075
+
+[stepper_z3]
+step_pin: PG15
+dir_pin: !PB6
+enable_pin: !PG14
+rotation_distance: 40
+gear_ratio: 80:12
+microsteps: 16
+
+[tmc5160 stepper_z3]
+cs_pin: PA10
+spi_software_sclk_pin: PC6
+spi_software_mosi_pin: PC8
+spi_software_miso_pin: PC7
+run_current: 0.800
+sense_resistor: 0.075`;
             parseConfig();
         }
 

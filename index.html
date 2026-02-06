@@ -538,8 +538,12 @@
 
         .external-motors {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 0.5rem;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.65rem;
+        }
+
+        @media (max-width: 1000px) {
+            .external-motors { grid-template-columns: repeat(2, 1fr); }
         }
 
         .export-section {
@@ -562,11 +566,19 @@
             margin-top: 0.5rem;
         }
 
+        .endstop-section-label {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.75rem;
+            margin-bottom: 0.35rem;
+        }
+
         .endstop-list {
             display: flex;
             flex-direction: column;
             gap: 0.25rem;
-            margin-top: 0.5rem;
         }
 
         .endstop-item {
@@ -666,6 +678,7 @@
                     </div>
                     <div class="card-body">
                         <div class="stats-row" id="statsRow"></div>
+                        <div class="endstop-section-label" id="endstopLabel" style="display: none;">Endstop Config</div>
                         <div class="endstop-list" id="endstopList"></div>
                     </div>
                 </div>
@@ -1338,7 +1351,7 @@
                         ${motor?.driver ? `<span class="slot-driver">${motor.driver}</span>` : ''}
                         ${currentHtml}
                     </div>
-                    <div class="slot-motor ${motor ? '' : 'empty'}">${motor ? motor.name : 'Empty'}</div>
+                    <div class="slot-motor ${motor ? '' : 'empty'}">${motor ? capitalizeMotorName(motor.name) : 'Empty'}</div>
                     ${motorInfoHtml}
                     <div class="slot-pins">
                         <div class="pin-item">
@@ -1397,7 +1410,7 @@
                                 ${motor.driver ? `<span class="slot-driver">${motor.driver}</span>` : ''}
                                 ${currentHtml}
                             </div>
-                            <div class="slot-motor">${motor.name}</div>
+                            <div class="slot-motor">${capitalizeMotorName(motor.name)}</div>
                             ${motorInfoHtml}
                             <div class="slot-pins">
                                 <div class="pin-item">
@@ -1538,6 +1551,17 @@
             return { type: 'physical', label: formatPinWithMods(pin) };
         }
 
+        function capitalizeMotorName(name) {
+            // stepper_x -> Stepper X, stepper_z1 -> Stepper Z1, extruder -> Extruder
+            return name
+                .split('_')
+                .map((part, i) => {
+                    if (i === 0) return part.charAt(0).toUpperCase() + part.slice(1);
+                    return part.toUpperCase();
+                })
+                .join(' ');
+        }
+
         function updateStats(motors, slotMap, issues, externalMotors) {
             const statsCard = document.getElementById('statsCard');
             const statsRow = document.getElementById('statsRow');
@@ -1583,6 +1607,7 @@
             statsRow.innerHTML = html;
 
             // Endstop summary
+            const endstopLabel = document.getElementById('endstopLabel');
             let endstopHtml = '';
             for (const motor of motors) {
                 if (motor.axis === 'e') continue; // Skip extruder
@@ -1590,15 +1615,17 @@
                 if (endstop.type === 'none' && motor.num) continue; // Skip secondary motors without endstops
 
                 endstopHtml += `<div class="endstop-item">
-                    <span class="motor">${motor.name}</span>
+                    <span class="motor">${capitalizeMotorName(motor.name)}</span>
                     <span class="type ${endstop.type}">${endstop.label}</span>
                 </div>`;
             }
 
             if (endstopHtml) {
+                endstopLabel.style.display = 'block';
                 endstopList.innerHTML = endstopHtml;
                 endstopList.style.display = 'flex';
             } else {
+                endstopLabel.style.display = 'none';
                 endstopList.style.display = 'none';
             }
 

@@ -4,36 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Klipper Pin Mapper</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #0d1117;
-            --bg-secondary: #161b22;
-            --bg-tertiary: #21262d;
-            --bg-card: #1c2128;
-            --accent-blue: #58a6ff;
-            --accent-green: #3fb950;
-            --accent-yellow: #d29922;
-            --accent-red: #f85149;
-            --accent-purple: #a371f7;
-            --accent-cyan: #39c5cf;
-            --accent-orange: #db6d28;
-            --accent-pink: #db61a2;
-            --text-primary: #c9d1d9;
-            --text-secondary: #8b949e;
-            --text-muted: #484f58;
-            --border-color: #30363d;
-            --border-highlight: #388bfd;
+            --bg-primary: #0f1114;
+            --bg-secondary: #16181d;
+            --bg-tertiary: #1e2128;
+            --bg-card: #1a1d23;
+            --accent: #5cdbab;
+            --accent-dim: #3d9476;
+            --accent-glow: rgba(92, 219, 171, 0.12);
+            --success: #5cdbab;
+            --warning: #e5c07b;
+            --error: #e06c75;
+            --text-primary: #d4d7dd;
+            --text-secondary: #878c96;
+            --text-muted: #4d525c;
+            --border-color: #2a2e38;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'JetBrains Mono', monospace;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
             line-height: 1.5;
+            font-size: 14px;
         }
 
         .container {
@@ -46,37 +43,20 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 1rem 0 1.5rem;
+            padding: 0.75rem 0 1.25rem;
             border-bottom: 1px solid var(--border-color);
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
             flex-wrap: wrap;
             gap: 1rem;
         }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-        }
-
         h1 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 600;
+            color: var(--text-primary);
         }
 
-        .subtitle { font-size: 0.75rem; color: var(--text-muted); }
+        .subtitle { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem; }
 
         .board-selector {
             display: flex;
@@ -85,44 +65,44 @@
             flex-wrap: wrap;
         }
 
-        .board-selector label { font-size: 0.75rem; color: var(--text-secondary); }
+        .board-selector label { font-size: 0.7rem; color: var(--text-secondary); }
 
         select {
             background: var(--bg-tertiary);
             border: 1px solid var(--border-color);
             color: var(--text-primary);
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
             font-family: inherit;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             cursor: pointer;
-            min-width: 220px;
+            min-width: 200px;
         }
 
-        select:focus { outline: none; border-color: var(--accent-blue); }
+        select:focus { outline: none; border-color: var(--accent); }
 
         .detected-badge {
             display: inline-flex;
             align-items: center;
             gap: 0.35rem;
-            padding: 0.35rem 0.65rem;
-            background: rgba(63, 185, 80, 0.15);
-            border: 1px solid rgba(63, 185, 80, 0.4);
-            border-radius: 20px;
-            font-size: 0.7rem;
-            color: var(--accent-green);
+            padding: 0.3rem 0.6rem;
+            background: var(--accent-glow);
+            border: 1px solid var(--accent-dim);
+            border-radius: 3px;
+            font-size: 0.65rem;
+            color: var(--accent);
         }
 
         .detected-badge.low-confidence {
-            background: rgba(210, 153, 34, 0.15);
-            border-color: rgba(210, 153, 34, 0.4);
-            color: var(--accent-yellow);
+            background: rgba(219, 197, 92, 0.1);
+            border-color: rgba(219, 197, 92, 0.4);
+            color: var(--warning);
         }
 
         .main-layout {
             display: grid;
-            grid-template-columns: 400px 1fr;
-            gap: 1.5rem;
+            grid-template-columns: 380px 1fr;
+            gap: 1.25rem;
         }
 
         @media (max-width: 1200px) {
@@ -138,12 +118,12 @@
         .card {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 6px;
             overflow: hidden;
         }
 
         .card-header {
-            padding: 0.75rem 1rem;
+            padding: 0.6rem 0.85rem;
             background: var(--bg-tertiary);
             border-bottom: 1px solid var(--border-color);
             display: flex;
@@ -152,47 +132,47 @@
         }
 
         .card-title {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .card-body { padding: 1rem; }
+        .card-body { padding: 0.85rem; }
 
         textarea {
             width: 100%;
-            height: 280px;
+            height: 260px;
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 0.75rem;
+            border-radius: 4px;
+            padding: 0.65rem;
             color: var(--text-primary);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
+            font-family: 'SF Mono', Consolas, Monaco, monospace;
+            font-size: 0.75rem;
             line-height: 1.5;
             resize: vertical;
         }
 
-        textarea:focus { outline: none; border-color: var(--accent-blue); }
+        textarea:focus { outline: none; border-color: var(--accent); }
 
-        .btn-row { display: flex; gap: 0.5rem; }
+        .btn-row { display: flex; gap: 0.5rem; margin-top: 0.65rem; }
 
         button {
             flex: 1;
-            padding: 0.65rem 1rem;
+            padding: 0.55rem 0.85rem;
             border: none;
-            border-radius: 6px;
+            border-radius: 4px;
             font-family: inherit;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.15s;
         }
 
-        .btn-primary { background: var(--accent-blue); color: var(--bg-primary); }
-        .btn-primary:hover { background: #79b8ff; }
+        .btn-primary { background: var(--accent); color: var(--bg-primary); }
+        .btn-primary:hover { background: #7ae5c0; }
         .btn-secondary {
             background: var(--bg-tertiary);
             color: var(--text-secondary);
@@ -200,30 +180,29 @@
         }
         .btn-secondary:hover { background: var(--border-color); color: var(--text-primary); }
 
-        /* Board Visualization */
         .board-container {
             background: var(--bg-card);
-            border-radius: 12px;
-            padding: 1.5rem;
-            min-height: calc(100vh - 300px);
+            border-radius: 6px;
+            padding: 1.25rem;
+            min-height: calc(100vh - 280px);
         }
 
         .board-outline {
-            background: #1a1f26;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
             position: relative;
             padding: 1rem;
         }
 
         .board-label {
             position: absolute;
-            top: -12px;
-            left: 20px;
+            top: -10px;
+            left: 16px;
             background: var(--bg-secondary);
-            padding: 0.25rem 0.75rem;
-            border-radius: 4px;
-            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 3px;
+            font-size: 0.65rem;
             color: var(--text-muted);
             border: 1px solid var(--border-color);
         }
@@ -231,8 +210,7 @@
         .driver-slots {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 0.75rem;
-            margin-bottom: 1rem;
+            gap: 0.65rem;
         }
 
         @media (max-width: 1000px) {
@@ -241,75 +219,57 @@
 
         .driver-slot {
             background: var(--bg-tertiary);
-            border: 2px solid var(--border-color);
-            border-radius: 6px;
-            padding: 0.65rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.55rem;
             position: relative;
-            transition: all 0.2s;
+            transition: all 0.15s;
         }
 
         .driver-slot.active {
-            border-color: var(--slot-color, var(--accent-blue));
-            box-shadow: 0 0 15px rgba(88, 166, 255, 0.15);
+            border-color: var(--accent-dim);
+            background: rgba(92, 219, 171, 0.03);
         }
 
         .driver-slot.has-issue {
-            border-color: var(--accent-red);
-            background: rgba(248, 81, 73, 0.05);
-        }
-
-        .driver-slot.active::before {
-            content: '';
-            position: absolute;
-            top: -1px;
-            left: -1px;
-            right: -1px;
-            height: 3px;
-            background: var(--slot-color, var(--accent-blue));
-            border-radius: 6px 6px 0 0;
+            border-color: var(--error);
+            background: rgba(219, 107, 92, 0.05);
         }
 
         .slot-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 0.35rem;
+            margin-bottom: 0.3rem;
         }
 
-        .slot-id { font-size: 0.6rem; color: var(--text-muted); font-weight: 500; }
+        .slot-id { font-size: 0.6rem; color: var(--text-muted); }
 
         .slot-driver {
             font-size: 0.55rem;
-            padding: 0.1rem 0.35rem;
+            padding: 0.1rem 0.3rem;
             background: var(--bg-primary);
-            border-radius: 3px;
-            color: var(--accent-yellow);
+            border-radius: 2px;
+            color: var(--warning);
         }
 
         .slot-motor {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
             margin-bottom: 0.25rem;
+            color: var(--text-primary);
         }
 
-        .slot-motor .axis {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            line-height: 18px;
-            text-align: center;
-            background: var(--slot-color, var(--bg-primary));
-            color: var(--bg-primary);
-            border-radius: 4px;
-            margin-right: 0.25rem;
-            font-size: 0.7rem;
+        .slot-motor.empty {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 0.65rem;
         }
 
         .slot-pins {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 0.2rem;
+            gap: 0.15rem;
             font-size: 0.55rem;
         }
 
@@ -317,62 +277,47 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0.15rem 0.25rem;
+            padding: 0.12rem 0.2rem;
             background: var(--bg-primary);
-            border-radius: 3px;
+            border-radius: 2px;
         }
 
         .pin-label { color: var(--text-muted); }
-        .pin-value { color: var(--accent-purple); font-weight: 500; }
-        .pin-value.match { color: var(--accent-green); }
-        .pin-value.mismatch { color: var(--accent-red); }
+        .pin-value { color: var(--text-secondary); font-family: 'SF Mono', Consolas, monospace; }
 
         .pin-status {
-            width: 10px;
-            height: 10px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             margin-left: 3px;
             flex-shrink: 0;
         }
 
-        .pin-status.ok { background: var(--accent-green); }
-        .pin-status.warn { background: var(--accent-red); }
+        .pin-status.ok { background: var(--success); }
+        .pin-status.warn { background: var(--error); }
 
-        /* Issues Panel */
         .issues-list {
-            max-height: 200px;
+            max-height: 180px;
             overflow-y: auto;
         }
 
         .issue-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.5rem;
-            padding: 0.6rem;
+            padding: 0.5rem;
             background: var(--bg-primary);
-            border-radius: 6px;
-            margin-bottom: 0.5rem;
-            border-left: 3px solid var(--accent-red);
+            border-radius: 4px;
+            margin-bottom: 0.4rem;
+            border-left: 2px solid var(--error);
+            font-size: 0.68rem;
         }
 
         .issue-item.warning {
-            border-left-color: var(--accent-yellow);
-        }
-
-        .issue-icon {
-            font-size: 0.9rem;
-            flex-shrink: 0;
-        }
-
-        .issue-content {
-            flex: 1;
-            font-size: 0.7rem;
+            border-left-color: var(--warning);
         }
 
         .issue-title {
             font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 0.15rem;
+            margin-bottom: 0.1rem;
         }
 
         .issue-detail {
@@ -380,118 +325,103 @@
         }
 
         .issue-fix {
-            margin-top: 0.35rem;
-            padding: 0.35rem 0.5rem;
+            margin-top: 0.3rem;
+            padding: 0.25rem 0.4rem;
             background: var(--bg-tertiary);
-            border-radius: 4px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.65rem;
-            color: var(--accent-cyan);
+            border-radius: 3px;
+            font-family: 'SF Mono', Consolas, monospace;
+            font-size: 0.7rem;
+            color: var(--accent);
         }
 
-        /* Comparison Table */
         .comparison-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.7rem;
+            font-size: 0.68rem;
         }
 
         .comparison-table th {
             position: sticky;
             top: 0;
             background: var(--bg-tertiary);
-            padding: 0.5rem 0.6rem;
+            padding: 0.45rem 0.55rem;
             text-align: left;
             font-weight: 500;
-            color: var(--text-secondary);
+            color: var(--text-muted);
             border-bottom: 1px solid var(--border-color);
+            text-transform: uppercase;
+            font-size: 0.6rem;
+            letter-spacing: 0.3px;
         }
 
         .comparison-table td {
-            padding: 0.45rem 0.6rem;
+            padding: 0.4rem 0.55rem;
             border-bottom: 1px solid var(--border-color);
         }
 
         .comparison-table tr:hover td { background: var(--bg-tertiary); }
 
         .comparison-table tr.mismatch-row td {
-            background: rgba(248, 81, 73, 0.08);
+            background: rgba(219, 107, 92, 0.06);
         }
 
         .pin-badge {
             display: inline-block;
-            padding: 0.12rem 0.35rem;
-            border-radius: 3px;
-            font-size: 0.6rem;
+            padding: 0.1rem 0.3rem;
+            border-radius: 2px;
+            font-size: 0.58rem;
             font-weight: 500;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
         }
-
-        .pin-badge.step { background: rgba(88, 166, 255, 0.2); color: var(--accent-blue); }
-        .pin-badge.dir { background: rgba(163, 113, 247, 0.2); color: var(--accent-purple); }
-        .pin-badge.enable { background: rgba(63, 185, 80, 0.2); color: var(--accent-green); }
-        .pin-badge.uart { background: rgba(210, 153, 34, 0.2); color: var(--accent-yellow); }
-        .pin-badge.cs { background: rgba(219, 97, 162, 0.2); color: var(--accent-pink); }
 
         .status-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.15rem 0.4rem;
-            border-radius: 10px;
             font-size: 0.6rem;
             font-weight: 500;
         }
 
-        .status-chip.match {
-            background: rgba(63, 185, 80, 0.15);
-            color: var(--accent-green);
-        }
+        .status-chip.match { color: var(--success); }
+        .status-chip.mismatch { color: var(--error); }
 
-        .status-chip.mismatch {
-            background: rgba(248, 81, 73, 0.15);
-            color: var(--accent-red);
-        }
-
-        /* Stats */
         .stats-row {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.4rem;
             flex-wrap: wrap;
         }
 
         .stat-chip {
             display: flex;
             align-items: center;
-            gap: 0.35rem;
-            padding: 0.4rem 0.6rem;
+            gap: 0.3rem;
+            padding: 0.35rem 0.5rem;
             background: var(--bg-primary);
-            border-radius: 6px;
-            font-size: 0.7rem;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            color: var(--text-secondary);
         }
 
         .stat-chip .value {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
+            font-weight: 600;
+            color: var(--text-primary);
         }
 
-        /* Tabs */
         .tabs {
             display: flex;
             gap: 0.25rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0.85rem;
         }
 
         .tab {
-            padding: 0.5rem 1rem;
-            font-size: 0.7rem;
-            color: var(--text-secondary);
+            padding: 0.4rem 0.85rem;
+            font-size: 0.68rem;
+            color: var(--text-muted);
             cursor: pointer;
-            border-radius: 6px;
+            border-radius: 4px;
             transition: all 0.15s;
         }
 
-        .tab:hover { background: var(--bg-tertiary); color: var(--text-primary); }
-        .tab.active { background: var(--accent-blue); color: var(--bg-primary); }
+        .tab:hover { background: var(--bg-tertiary); color: var(--text-secondary); }
+        .tab.active { background: var(--accent-dim); color: var(--bg-primary); }
 
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -506,111 +436,56 @@
             text-align: center;
         }
 
-        .empty-icon { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.5; }
-
-        .legend {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            padding: 0.75rem;
-            background: var(--bg-primary);
-            border-radius: 6px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.65rem;
-        }
-
-        .legend-color { width: 10px; height: 10px; border-radius: 3px; }
-        .axis-x { background: var(--accent-cyan); }
-        .axis-y { background: var(--accent-pink); }
-        .axis-z { background: var(--accent-green); }
-        .axis-e { background: var(--accent-orange); }
-
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-tertiary); }
-        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
-
-        .no-issues {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 1rem;
-            background: rgba(63, 185, 80, 0.1);
-            border-radius: 6px;
-            color: var(--accent-green);
-            font-size: 0.75rem;
-        }
-
         .table-container {
-            max-height: calc(100vh - 300px);
+            max-height: calc(100vh - 280px);
             min-height: 400px;
             overflow-y: auto;
         }
 
-        .board-container {
-            min-height: calc(100vh - 300px);
-        }
-
         .detection-debug {
-            margin-top: 0.75rem;
-            padding: 0.75rem;
-            background: var(--bg-primary);
-            border-radius: 6px;
-            font-size: 0.65rem;
-        }
-
-        .detection-debug h4 {
-            color: var(--text-secondary);
-            margin-bottom: 0.5rem;
-            font-size: 0.7rem;
+            font-size: 0.63rem;
         }
 
         .detection-score {
             display: flex;
             justify-content: space-between;
-            padding: 0.25rem 0;
+            padding: 0.2rem 0;
             border-bottom: 1px solid var(--border-color);
         }
 
-        .detection-score:last-child {
-            border-bottom: none;
-        }
-
-        .detection-score .board-name {
-            color: var(--text-primary);
-        }
-
-        .detection-score .score {
-            color: var(--accent-blue);
-            font-weight: 600;
-        }
+        .detection-score:last-child { border-bottom: none; }
+        .detection-score .board-name { color: var(--text-secondary); }
+        .detection-score .score { color: var(--text-muted); }
 
         .detection-score.winner {
-            background: rgba(63, 185, 80, 0.1);
+            background: var(--accent-glow);
             margin: 0 -0.5rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
         }
 
-        .detection-score.winner .score {
-            color: var(--accent-green);
+        .detection-score.winner .score { color: var(--accent); font-weight: 600; }
+
+        .no-issues {
+            padding: 0.75rem;
+            background: var(--accent-glow);
+            border-radius: 4px;
+            color: var(--accent);
+            font-size: 0.7rem;
         }
+
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: var(--bg-tertiary); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <div class="logo">
-                <div class="logo-icon">📍</div>
-                <div>
-                    <h1>Klipper Pin Mapper</h1>
-                    <div class="subtitle">Map & validate stepper pin assignments</div>
-                </div>
+            <div>
+                <h1>Klipper Pin Mapper</h1>
+                <div class="subtitle">Validate stepper pin assignments against board pinouts</div>
             </div>
             <div class="board-selector">
                 <label>Board:</label>
@@ -632,7 +507,6 @@
                     </optgroup>
                 </select>
                 <span class="detected-badge" id="detectedBadge" style="display: none;">
-                    <span>✓</span>
                     <span id="detectedText">Detected</span>
                 </span>
             </div>
@@ -642,13 +516,12 @@
             <div class="input-panel">
                 <div class="card">
                     <div class="card-header">
-                        <span class="card-title">⚙️ Configuration Input</span>
+                        <span class="card-title">Configuration</span>
                     </div>
                     <div class="card-body">
-                        <textarea id="configInput" placeholder="Paste your Klipper printer.cfg stepper and TMC driver sections here..."></textarea>
-                        <div class="btn-row" style="margin-top: 0.75rem;">
+                        <textarea id="configInput" placeholder="Paste your printer.cfg stepper and TMC sections here..."></textarea>
+                        <div class="btn-row">
                             <button class="btn-primary" onclick="parseConfig()">Map Pins</button>
-                            <button class="btn-secondary" onclick="loadExample()">Example</button>
                             <button class="btn-secondary" onclick="clearAll()">Clear</button>
                         </div>
                     </div>
@@ -656,7 +529,7 @@
 
                 <div class="card" id="detectionCard" style="display: none;">
                     <div class="card-header">
-                        <span class="card-title">🔍 Detection Analysis</span>
+                        <span class="card-title">Detection</span>
                     </div>
                     <div class="card-body">
                         <div class="detection-debug" id="detectionDebug"></div>
@@ -665,8 +538,8 @@
 
                 <div class="card" id="issuesCard" style="display: none;">
                     <div class="card-header">
-                        <span class="card-title">⚠️ Pin Mismatches</span>
-                        <span id="issueCount" style="font-size: 0.7rem; color: var(--accent-red);"></span>
+                        <span class="card-title">Issues</span>
+                        <span id="issueCount" style="font-size: 0.65rem; color: var(--error);"></span>
                     </div>
                     <div class="card-body">
                         <div class="issues-list" id="issuesList"></div>
@@ -675,16 +548,10 @@
 
                 <div class="card" id="statsCard" style="display: none;">
                     <div class="card-header">
-                        <span class="card-title">📊 Summary</span>
+                        <span class="card-title">Summary</span>
                     </div>
                     <div class="card-body">
                         <div class="stats-row" id="statsRow"></div>
-                        <div class="legend" style="margin-top: 0.75rem;">
-                            <div class="legend-item"><div class="legend-color axis-x"></div><span>X</span></div>
-                            <div class="legend-item"><div class="legend-color axis-y"></div><span>Y</span></div>
-                            <div class="legend-item"><div class="legend-color axis-z"></div><span>Z</span></div>
-                            <div class="legend-item"><div class="legend-color axis-e"></div><span>Extruder</span></div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -692,19 +559,18 @@
             <div class="board-viz">
                 <div class="card">
                     <div class="card-header">
-                        <span class="card-title" id="vizTitle">🖥️ Board Visualization</span>
+                        <span class="card-title" id="vizTitle">Board View</span>
                     </div>
                     <div class="card-body">
                         <div class="tabs">
-                            <div class="tab active" onclick="switchTab('board')">Board View</div>
-                            <div class="tab" onclick="switchTab('table')">Comparison Table</div>
+                            <div class="tab active" onclick="switchTab('board')">Visual</div>
+                            <div class="tab" onclick="switchTab('table')">Table</div>
                         </div>
 
                         <div class="tab-content active" id="boardTab">
                             <div class="board-container" id="boardContainer">
                                 <div class="empty-state" id="emptyState">
-                                    <div class="empty-icon">🔌</div>
-                                    <p>Paste your configuration and click "Map Pins"<br>to validate your pin assignments</p>
+                                    <p>Paste configuration and click "Map Pins"</p>
                                 </div>
                                 <div id="boardViz" style="display: none;"></div>
                             </div>
@@ -713,8 +579,7 @@
                         <div class="tab-content" id="tableTab">
                             <div class="table-container" id="tableContainer">
                                 <div class="empty-state">
-                                    <div class="empty-icon">📋</div>
-                                    <p>No data to display</p>
+                                    <p>No data</p>
                                 </div>
                             </div>
                         </div>
@@ -725,8 +590,6 @@
     </div>
 
     <script>
-        // Board definitions with IMPROVED signature pins for better detection
-        // Key insight: Use pins that are UNIQUE to each board family, not shared
         const BOARDS = {
             'octopus_pro_v1.0': {
                 name: 'BTT Octopus Pro v1.0',
@@ -742,16 +605,12 @@
                     { id: 'DRIVER6', step: 'PE2', dir: 'PE3', enable: 'PD4', uart: 'PE1', cs: 'PE1', diag: 'PG14' },
                     { id: 'DRIVER7', step: 'PE6', dir: 'PA14', enable: 'PE0', uart: 'PD3', cs: 'PD3', diag: 'PG15' }
                 ],
-                // Unique Octopus Pro pins - PF13, PF11, PF9 as step pins are distinctive
                 signaturePins: ['PF13', 'PF11', 'PF9', 'PG0', 'PG4', 'PC13'],
-                // Pins that EXCLUDE this board (if found, it's NOT this board)
                 excludePins: [],
-                // Required pin combinations - if these specific step+dir combos exist, strong indicator
                 requiredCombos: [
-                    { step: 'PF13', dir: 'PF12' },  // Driver 0
-                    { step: 'PF11', dir: 'PG3' },   // Driver 2
+                    { step: 'PF13', dir: 'PF12' },
+                    { step: 'PF11', dir: 'PG3' },
                 ],
-                notes: 'V1.0 uses PA0 for Motor4-EN'
             },
             'octopus_pro_v1.1': {
                 name: 'BTT Octopus Pro v1.1',
@@ -773,7 +632,6 @@
                     { step: 'PF13', dir: 'PF12' },
                     { step: 'PF11', dir: 'PG3' },
                 ],
-                notes: 'V1.1 uses PA2 for Motor4-EN (changed from PA0)'
             },
             'octopus_v1.1': {
                 name: 'BTT Octopus v1.1',
@@ -809,20 +667,15 @@
                     { id: 'M7', step: 'PB4', dir: 'PB3', enable: 'PB5', uart: 'PA9', cs: 'PA9', diag: 'PF10' },
                     { id: 'M8', step: 'PG15', dir: 'PB6', enable: 'PG14', uart: 'PA10', cs: 'PA10', diag: 'PC0' }
                 ],
-                // KRAKEN-SPECIFIC pins - these are ONLY on Kraken, not M8P
-                // PC14 as step, PE5 as step, PB9 as step are unique to Kraken
                 signaturePins: ['PC14', 'PE5', 'PB9', 'PG9', 'PG11', 'PB4', 'PG15'],
-                // These pins as STEP pins would exclude Kraken
                 excludePins: [],
-                // Required combos unique to Kraken
                 requiredCombos: [
-                    { step: 'PC14', dir: 'PC13' },  // M1 - UNIQUE to Kraken
-                    { step: 'PE5', dir: 'PE4' },    // M2 - UNIQUE to Kraken
-                    { step: 'PB9', dir: 'PB8' },    // M4 - UNIQUE to Kraken
-                    { step: 'PG9', dir: 'PG10' },   // M5 - Kraken specific dir
-                    { step: 'PG11', dir: 'PD7' },   // M6 - UNIQUE combo
+                    { step: 'PC14', dir: 'PC13' },
+                    { step: 'PE5', dir: 'PE4' },
+                    { step: 'PB9', dir: 'PB8' },
+                    { step: 'PG9', dir: 'PG10' },
+                    { step: 'PG11', dir: 'PD7' },
                 ],
-                // Unique identifying pins - if these exist, it's definitely Kraken
                 uniqueIdentifiers: ['PC14', 'PE5', 'PB9'],
             },
             'manta_m8p_v1': {
@@ -839,12 +692,11 @@
                     { id: 'M7', step: 'PD11', dir: 'PD9', enable: 'PD15', uart: 'PD14', cs: 'PD14', diag: 'PC3' },
                     { id: 'M8', step: 'PD8', dir: 'PC6', enable: 'PD10', uart: 'PD13', cs: 'PD13', diag: 'PA0' }
                 ],
-                // M8P v1 specific - PF12, PD7, PC9 as step pins
                 signaturePins: ['PF12', 'PD7', 'PC9', 'PD11', 'PD8'],
-                excludePins: ['PC14', 'PE5', 'PB9'],  // These are Kraken pins
+                excludePins: ['PC14', 'PE5', 'PB9'],
                 requiredCombos: [
-                    { step: 'PF12', dir: 'PF11' },  // Unique to M8P v1
-                    { step: 'PC9', dir: 'PC8' },    // Unique to M8P v1
+                    { step: 'PF12', dir: 'PF11' },
+                    { step: 'PC9', dir: 'PC8' },
                 ],
                 uniqueIdentifiers: ['PF12', 'PC9', 'PD11', 'PD8'],
             },
@@ -862,22 +714,14 @@
                     { id: 'M7', step: 'PD4', dir: 'PD3', enable: 'PD6', uart: 'PD5', cs: 'PD5', diag: 'PF6' },
                     { id: 'M8', step: 'PC7', dir: 'PC8', enable: 'PD2', uart: 'PC6', cs: 'PC6', diag: 'PF10' }
                 ],
-                // M8P v2 specific
                 signaturePins: ['PG13', 'PD4', 'PC7'],
-                excludePins: ['PC14', 'PE5', 'PB9'],  // Kraken step pins
+                excludePins: ['PC14', 'PE5', 'PB9'],
                 requiredCombos: [
-                    { step: 'PE6', dir: 'PE5' },    // Note: PE6 step with PE5 dir is M8P v2
-                    { step: 'PG13', dir: 'PG12' },  // Unique to M8P v2
+                    { step: 'PE6', dir: 'PE5' },
+                    { step: 'PG13', dir: 'PG12' },
                 ],
                 uniqueIdentifiers: ['PG13', 'PD4', 'PC7'],
             }
-        };
-
-        const AXIS_COLORS = {
-            'x': 'var(--accent-cyan)',
-            'y': 'var(--accent-pink)',
-            'z': 'var(--accent-green)',
-            'e': 'var(--accent-orange)'
         };
 
         let currentBoard = null;
@@ -929,11 +773,10 @@
                 uartPins: new Set(),
                 csPins: new Set(),
                 allPins: new Set(),
-                stepDirCombos: [],  // Array of {step, dir} objects
+                stepDirCombos: [],
             };
 
             for (const [name, cfg] of Object.entries(sections)) {
-                // Only look at stepper and tmc sections
                 if (!name.includes('stepper') && !name.includes('tmc') && !name.includes('extruder')) continue;
 
                 const stepPin = normalizePin(cfg.step_pin);
@@ -942,33 +785,16 @@
                 const uartPin = normalizePin(cfg.uart_pin);
                 const csPin = normalizePin(cfg.cs_pin);
 
-                if (stepPin) {
-                    info.stepPins.add(stepPin);
-                    info.allPins.add(stepPin);
-                }
-                if (dirPin) {
-                    info.dirPins.add(dirPin);
-                    info.allPins.add(dirPin);
-                }
-                if (enablePin) {
-                    info.enablePins.add(enablePin);
-                    info.allPins.add(enablePin);
-                }
-                if (uartPin) {
-                    info.uartPins.add(uartPin);
-                    info.allPins.add(uartPin);
-                }
-                if (csPin) {
-                    info.csPins.add(csPin);
-                    info.allPins.add(csPin);
-                }
+                if (stepPin) { info.stepPins.add(stepPin); info.allPins.add(stepPin); }
+                if (dirPin) { info.dirPins.add(dirPin); info.allPins.add(dirPin); }
+                if (enablePin) { info.enablePins.add(enablePin); info.allPins.add(enablePin); }
+                if (uartPin) { info.uartPins.add(uartPin); info.allPins.add(uartPin); }
+                if (csPin) { info.csPins.add(csPin); info.allPins.add(csPin); }
 
-                // Record step+dir combinations
                 if (stepPin && dirPin) {
                     info.stepDirCombos.push({ step: stepPin, dir: dirPin });
                 }
             }
-
             return info;
         }
 
@@ -981,13 +807,11 @@
                 let maxScore = 0;
                 let details = [];
 
-                // 1. Check for excluded pins (immediate disqualification)
                 if (board.excludePins) {
                     let hasExcluded = false;
                     for (const exPin of board.excludePins) {
                         if (pinInfo.stepPins.has(normalizePin(exPin))) {
                             hasExcluded = true;
-                            details.push(`❌ Excluded pin ${exPin} found as step`);
                             break;
                         }
                     }
@@ -997,29 +821,20 @@
                     }
                 }
 
-                // 2. Check unique identifiers (high weight)
                 if (board.uniqueIdentifiers) {
                     let uniqueMatches = 0;
                     for (const uPin of board.uniqueIdentifiers) {
-                        if (pinInfo.stepPins.has(normalizePin(uPin))) {
-                            uniqueMatches++;
-                        }
+                        if (pinInfo.stepPins.has(normalizePin(uPin))) uniqueMatches++;
                     }
-                    const uniqueScore = (uniqueMatches / board.uniqueIdentifiers.length) * 40;
-                    score += uniqueScore;
+                    score += (uniqueMatches / board.uniqueIdentifiers.length) * 40;
                     maxScore += 40;
-                    if (uniqueMatches > 0) {
-                        details.push(`✓ ${uniqueMatches}/${board.uniqueIdentifiers.length} unique identifiers`);
-                    }
                 }
 
-                // 3. Check required step+dir combinations (high weight)
                 if (board.requiredCombos) {
                     let comboMatches = 0;
                     for (const combo of board.requiredCombos) {
                         const normalStep = normalizePin(combo.step);
                         const normalDir = normalizePin(combo.dir);
-                        
                         for (const configCombo of pinInfo.stepDirCombos) {
                             if (configCombo.step === normalStep && configCombo.dir === normalDir) {
                                 comboMatches++;
@@ -1027,99 +842,63 @@
                             }
                         }
                     }
-                    const comboScore = (comboMatches / board.requiredCombos.length) * 35;
-                    score += comboScore;
+                    score += (comboMatches / board.requiredCombos.length) * 35;
                     maxScore += 35;
-                    if (comboMatches > 0) {
-                        details.push(`✓ ${comboMatches}/${board.requiredCombos.length} step+dir combos`);
-                    }
                 }
 
-                // 4. Check signature pins (medium weight)
                 let sigMatches = 0;
                 for (const sigPin of board.signaturePins) {
-                    if (pinInfo.stepPins.has(normalizePin(sigPin))) {
-                        sigMatches++;
-                    }
+                    if (pinInfo.stepPins.has(normalizePin(sigPin))) sigMatches++;
                 }
-                const sigScore = (sigMatches / board.signaturePins.length) * 25;
-                score += sigScore;
+                score += (sigMatches / board.signaturePins.length) * 25;
                 maxScore += 25;
-                if (sigMatches > 0) {
-                    details.push(`✓ ${sigMatches}/${board.signaturePins.length} signature pins`);
-                }
 
-                // 5. Check all driver pins match (verification)
                 let totalDriverPins = 0;
                 let matchedDriverPins = 0;
                 for (const driver of board.drivers) {
                     if (pinInfo.stepPins.has(normalizePin(driver.step))) {
                         totalDriverPins++;
                         matchedDriverPins++;
-                        
-                        // Check if dir also matches for this driver
-                        if (pinInfo.dirPins.has(normalizePin(driver.dir))) {
-                            matchedDriverPins += 0.5;
-                        }
+                        if (pinInfo.dirPins.has(normalizePin(driver.dir))) matchedDriverPins += 0.5;
                         totalDriverPins += 0.5;
                     }
                 }
-
-                if (totalDriverPins > 0) {
-                    const driverScore = (matchedDriverPins / totalDriverPins) * 20;
-                    score += driverScore;
-                }
+                if (totalDriverPins > 0) score += (matchedDriverPins / totalDriverPins) * 20;
                 maxScore += 20;
 
                 const finalScore = maxScore > 0 ? (score / maxScore) * 100 : 0;
                 results.push({ boardId, score: finalScore, maxScore: 100, details });
             }
 
-            // Sort by score descending
             results.sort((a, b) => b.score - a.score);
-            
             lastDetectionResults = results;
 
-            // Return best match if confidence is reasonable
             const best = results[0];
             const secondBest = results[1];
-            
-            // Check if there's a clear winner (at least 15 points ahead of second place)
             const clearWinner = best.score > 30 && (!secondBest || best.score - secondBest.score > 10);
 
-            return {
-                boardId: best.score > 20 ? best.boardId : null,
-                confidence: best.score / 100,
-                clearWinner,
-                results
-            };
+            return { boardId: best.score > 20 ? best.boardId : null, confidence: best.score / 100, clearWinner, results };
         }
 
         function renderDetectionDebug(results, selectedId) {
             const container = document.getElementById('detectionDebug');
             const card = document.getElementById('detectionCard');
-            
             card.style.display = 'block';
 
-            let html = '<h4>Board Detection Scores</h4>';
-            
-            for (const result of results.slice(0, 5)) {  // Show top 5
+            let html = '';
+            for (const result of results.slice(0, 5)) {
                 const isWinner = result.boardId === selectedId;
                 const board = BOARDS[result.boardId];
-                html += `
-                    <div class="detection-score ${isWinner ? 'winner' : ''}">
-                        <span class="board-name">${board.name}</span>
-                        <span class="score">${result.score.toFixed(1)}%</span>
-                    </div>
-                `;
+                html += `<div class="detection-score ${isWinner ? 'winner' : ''}">
+                    <span class="board-name">${board.name}</span>
+                    <span class="score">${result.score.toFixed(1)}%</span>
+                </div>`;
             }
-
             container.innerHTML = html;
         }
 
         function extractMotors(sections) {
             const motors = [];
-
             for (const [name, cfg] of Object.entries(sections)) {
                 const stepperMatch = name.match(/^stepper_([xyz])(\d*)$/) || name.match(/^(extruder)(\d*)$/);
                 if (stepperMatch) {
@@ -1128,9 +907,7 @@
                     if (axis === 'extruder') axis = 'e';
 
                     const motor = {
-                        name: name,
-                        axis: axis,
-                        num: num,
+                        name, axis, num,
                         stepPin: normalizePin(cfg.step_pin),
                         dirPin: normalizePin(cfg.dir_pin),
                         enablePin: normalizePin(cfg.enable_pin),
@@ -1149,11 +926,9 @@
                             break;
                         }
                     }
-
                     motors.push(motor);
                 }
             }
-
             return motors;
         }
 
@@ -1169,65 +944,25 @@
                         slotMap[i] = motor;
                         matched = true;
 
-                        // Check for pin mismatches
                         if (motor.dirPin && normalizePin(slot.dir) !== motor.dirPin) {
-                            issues.push({
-                                type: 'mismatch',
-                                motor: motor.name,
-                                slot: slot.id,
-                                pin: 'dir_pin',
-                                expected: slot.dir,
-                                found: motor.dirPin,
-                                fix: `dir_pin: ${slot.dir}`
-                            });
+                            issues.push({ type: 'mismatch', motor: motor.name, slot: slot.id, pin: 'dir_pin', expected: slot.dir, found: motor.dirPin, fix: `dir_pin: ${slot.dir}` });
                         }
                         if (motor.enablePin && normalizePin(slot.enable) !== motor.enablePin) {
-                            issues.push({
-                                type: 'mismatch',
-                                motor: motor.name,
-                                slot: slot.id,
-                                pin: 'enable_pin',
-                                expected: slot.enable,
-                                found: motor.enablePin,
-                                fix: `enable_pin: !${slot.enable}`
-                            });
+                            issues.push({ type: 'mismatch', motor: motor.name, slot: slot.id, pin: 'enable_pin', expected: slot.enable, found: motor.enablePin, fix: `enable_pin: !${slot.enable}` });
                         }
                         if (motor.driverConfig.uartPin && slot.uart && normalizePin(slot.uart) !== motor.driverConfig.uartPin) {
-                            issues.push({
-                                type: 'mismatch',
-                                motor: motor.name,
-                                slot: slot.id,
-                                pin: 'uart_pin',
-                                expected: slot.uart,
-                                found: motor.driverConfig.uartPin,
-                                fix: `uart_pin: ${slot.uart}`
-                            });
+                            issues.push({ type: 'mismatch', motor: motor.name, slot: slot.id, pin: 'uart_pin', expected: slot.uart, found: motor.driverConfig.uartPin, fix: `uart_pin: ${slot.uart}` });
                         }
                         if (motor.driverConfig.csPin && slot.cs && normalizePin(slot.cs) !== motor.driverConfig.csPin) {
-                            issues.push({
-                                type: 'mismatch',
-                                motor: motor.name,
-                                slot: slot.id,
-                                pin: 'cs_pin',
-                                expected: slot.cs,
-                                found: motor.driverConfig.csPin,
-                                fix: `cs_pin: ${slot.cs}`
-                            });
+                            issues.push({ type: 'mismatch', motor: motor.name, slot: slot.id, pin: 'cs_pin', expected: slot.cs, found: motor.driverConfig.csPin, fix: `cs_pin: ${slot.cs}` });
                         }
                         break;
                     }
                 }
                 if (!matched) {
-                    issues.push({
-                        type: 'warning',
-                        motor: motor.name,
-                        pin: 'step_pin',
-                        found: motor.stepPin,
-                        message: `Step pin ${motor.stepPin} doesn't match any driver slot on this board`
-                    });
+                    issues.push({ type: 'warning', motor: motor.name, pin: 'step_pin', found: motor.stepPin, message: `Step pin ${motor.stepPin} doesn't match any driver slot` });
                 }
             }
-
             return { slotMap, issues };
         }
 
@@ -1235,57 +970,52 @@
             const boardViz = document.getElementById('boardViz');
             const issueSlots = new Set(issues.filter(i => i.type === 'mismatch').map(i => i.slot));
 
-            let html = `
-                <div class="board-outline">
-                    <div class="board-label">${board.name} • ${board.mcu}</div>
-                    <div class="driver-slots">
-            `;
+            let html = `<div class="board-outline">
+                <div class="board-label">${board.name} · ${board.mcu}</div>
+                <div class="driver-slots">`;
 
             for (let i = 0; i < board.driverCount; i++) {
                 const slot = board.drivers[i];
                 const motor = slotMap[i];
                 const isActive = motor !== null;
                 const hasIssue = issueSlots.has(slot.id);
-                const axisColor = motor ? AXIS_COLORS[motor.axis] : 'transparent';
 
                 const checkPin = (configPin, expectedPin) => {
                     if (!configPin) return '';
                     return normalizePin(expectedPin) === configPin ? 'ok' : 'warn';
                 };
 
-                html += `
-                    <div class="driver-slot ${isActive ? 'active' : ''} ${hasIssue ? 'has-issue' : ''}" style="--slot-color: ${axisColor}">
-                        <div class="slot-header">
-                            <span class="slot-id">${slot.id}</span>
-                            ${motor?.driver ? `<span class="slot-driver">${motor.driver}</span>` : ''}
+                html += `<div class="driver-slot ${isActive ? 'active' : ''} ${hasIssue ? 'has-issue' : ''}">
+                    <div class="slot-header">
+                        <span class="slot-id">${slot.id}</span>
+                        ${motor?.driver ? `<span class="slot-driver">${motor.driver}</span>` : ''}
+                    </div>
+                    <div class="slot-motor ${motor ? '' : 'empty'}">
+                        ${motor ? motor.name : 'Empty'}
+                    </div>
+                    <div class="slot-pins">
+                        <div class="pin-item">
+                            <span class="pin-label">STEP</span>
+                            <span class="pin-value">${slot.step}</span>
+                            ${motor ? `<span class="pin-status ${checkPin(motor.stepPin, slot.step)}"></span>` : ''}
                         </div>
-                        <div class="slot-motor">
-                            ${motor ? `<span class="axis">${motor.axis.toUpperCase()}</span>${motor.name}` : '<span style="color: var(--text-muted); font-size: 0.7rem;">Empty</span>'}
+                        <div class="pin-item">
+                            <span class="pin-label">DIR</span>
+                            <span class="pin-value">${slot.dir}</span>
+                            ${motor ? `<span class="pin-status ${checkPin(motor.dirPin, slot.dir)}"></span>` : ''}
                         </div>
-                        <div class="slot-pins">
-                            <div class="pin-item">
-                                <span class="pin-label">STEP</span>
-                                <span class="pin-value">${slot.step}</span>
-                                ${motor ? `<span class="pin-status ${checkPin(motor.stepPin, slot.step)}"></span>` : ''}
-                            </div>
-                            <div class="pin-item">
-                                <span class="pin-label">DIR</span>
-                                <span class="pin-value">${slot.dir}</span>
-                                ${motor ? `<span class="pin-status ${checkPin(motor.dirPin, slot.dir)}"></span>` : ''}
-                            </div>
-                            <div class="pin-item">
-                                <span class="pin-label">EN</span>
-                                <span class="pin-value">${slot.enable}</span>
-                                ${motor ? `<span class="pin-status ${checkPin(motor.enablePin, slot.enable)}"></span>` : ''}
-                            </div>
-                            <div class="pin-item">
-                                <span class="pin-label">${slot.cs ? 'CS' : 'UART'}</span>
-                                <span class="pin-value">${slot.cs || slot.uart}</span>
-                                ${motor?.driverConfig ? `<span class="pin-status ${checkPin(motor.driverConfig.csPin || motor.driverConfig.uartPin, slot.cs || slot.uart)}"></span>` : ''}
-                            </div>
+                        <div class="pin-item">
+                            <span class="pin-label">EN</span>
+                            <span class="pin-value">${slot.enable}</span>
+                            ${motor ? `<span class="pin-status ${checkPin(motor.enablePin, slot.enable)}"></span>` : ''}
+                        </div>
+                        <div class="pin-item">
+                            <span class="pin-label">${slot.cs ? 'CS' : 'UART'}</span>
+                            <span class="pin-value">${slot.cs || slot.uart}</span>
+                            ${motor?.driverConfig ? `<span class="pin-status ${checkPin(motor.driverConfig.csPin || motor.driverConfig.uartPin, slot.cs || slot.uart)}"></span>` : ''}
                         </div>
                     </div>
-                `;
+                </div>`;
             }
 
             html += '</div></div>';
@@ -1300,79 +1030,47 @@
             if (issues.length === 0) {
                 issuesCard.style.display = 'block';
                 issueCount.textContent = '';
-                issuesList.innerHTML = `
-                    <div class="no-issues">
-                        <span>✓</span>
-                        All pins match ${board.name} pinout!
-                    </div>
-                `;
+                issuesList.innerHTML = `<div class="no-issues">All pins match ${board.name}</div>`;
                 return;
             }
 
             issuesCard.style.display = 'block';
-            issueCount.textContent = `${issues.length} issue${issues.length > 1 ? 's' : ''}`;
+            issueCount.textContent = `${issues.length}`;
 
             let html = '';
             for (const issue of issues) {
                 if (issue.type === 'mismatch') {
-                    html += `
-                        <div class="issue-item">
-                            <span class="issue-icon">❌</span>
-                            <div class="issue-content">
-                                <div class="issue-title">${issue.motor} → ${issue.slot}: ${issue.pin}</div>
-                                <div class="issue-detail">
-                                    Expected <strong>${issue.expected}</strong>, found <strong>${issue.found}</strong>
-                                </div>
-                                <div class="issue-fix">Fix: ${issue.fix}</div>
-                            </div>
-                        </div>
-                    `;
+                    html += `<div class="issue-item">
+                        <div class="issue-title">${issue.motor} → ${issue.slot}: ${issue.pin}</div>
+                        <div class="issue-detail">Expected ${issue.expected}, found ${issue.found}</div>
+                        <div class="issue-fix">${issue.fix}</div>
+                    </div>`;
                 } else {
-                    html += `
-                        <div class="issue-item warning">
-                            <span class="issue-icon">⚠️</span>
-                            <div class="issue-content">
-                                <div class="issue-title">${issue.motor}</div>
-                                <div class="issue-detail">${issue.message}</div>
-                            </div>
-                        </div>
-                    `;
+                    html += `<div class="issue-item warning">
+                        <div class="issue-title">${issue.motor}</div>
+                        <div class="issue-detail">${issue.message}</div>
+                    </div>`;
                 }
             }
-
             issuesList.innerHTML = html;
         }
 
         function renderComparisonTable(board, motors, slotMap) {
             const container = document.getElementById('tableContainer');
-
             if (motors.length === 0) {
-                container.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>No motors configured</p></div>`;
+                container.innerHTML = `<div class="empty-state"><p>No motors configured</p></div>`;
                 return;
             }
 
-            let html = `
-                <table class="comparison-table">
-                    <thead>
-                        <tr>
-                            <th>Motor</th>
-                            <th>Slot</th>
-                            <th>Pin</th>
-                            <th>Your Config</th>
-                            <th>Board Pin</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
+            let html = `<table class="comparison-table">
+                <thead><tr><th>Motor</th><th>Slot</th><th>Pin</th><th>Config</th><th>Board</th><th>Status</th></tr></thead>
+                <tbody>`;
 
             for (const motor of motors) {
                 let matchedSlot = null;
-                let slotIdx = -1;
                 for (let i = 0; i < board.drivers.length; i++) {
                     if (normalizePin(board.drivers[i].step) === motor.stepPin) {
                         matchedSlot = board.drivers[i];
-                        slotIdx = i;
                         break;
                     }
                 }
@@ -1380,37 +1078,24 @@
                 const pins = [
                     { type: 'step', label: 'STEP', config: motor.stepPin, expected: matchedSlot?.step },
                     { type: 'dir', label: 'DIR', config: motor.dirPin, expected: matchedSlot?.dir },
-                    { type: 'enable', label: 'ENABLE', config: motor.enablePin, expected: matchedSlot?.enable }
+                    { type: 'enable', label: 'EN', config: motor.enablePin, expected: matchedSlot?.enable }
                 ];
-
-                if (motor.driverConfig.uartPin) {
-                    pins.push({ type: 'uart', label: 'UART', config: motor.driverConfig.uartPin, expected: matchedSlot?.uart });
-                }
-                if (motor.driverConfig.csPin) {
-                    pins.push({ type: 'cs', label: 'CS', config: motor.driverConfig.csPin, expected: matchedSlot?.cs });
-                }
+                if (motor.driverConfig.uartPin) pins.push({ type: 'uart', label: 'UART', config: motor.driverConfig.uartPin, expected: matchedSlot?.uart });
+                if (motor.driverConfig.csPin) pins.push({ type: 'cs', label: 'CS', config: motor.driverConfig.csPin, expected: matchedSlot?.cs });
 
                 for (let i = 0; i < pins.length; i++) {
                     const pin = pins[i];
                     const isMatch = pin.expected && normalizePin(pin.expected) === pin.config;
                     const rowClass = pin.expected && !isMatch ? 'mismatch-row' : '';
 
-                    html += `
-                        <tr class="${rowClass}">
-                            ${i === 0 ? `<td rowspan="${pins.length}" style="color: ${AXIS_COLORS[motor.axis]}; font-weight: 600;">${motor.name}</td>` : ''}
-                            ${i === 0 ? `<td rowspan="${pins.length}">${matchedSlot ? matchedSlot.id : '—'}</td>` : ''}
-                            <td><span class="pin-badge ${pin.type}">${pin.label}</span></td>
-                            <td style="font-weight: 500;">${pin.config || '—'}</td>
-                            <td>${pin.expected || '—'}</td>
-                            <td>
-                                ${pin.expected ? `
-                                    <span class="status-chip ${isMatch ? 'match' : 'mismatch'}">
-                                        ${isMatch ? '✓ Match' : '✗ Mismatch'}
-                                    </span>
-                                ` : '—'}
-                            </td>
-                        </tr>
-                    `;
+                    html += `<tr class="${rowClass}">
+                        ${i === 0 ? `<td rowspan="${pins.length}">${motor.name}</td>` : ''}
+                        ${i === 0 ? `<td rowspan="${pins.length}">${matchedSlot ? matchedSlot.id : '—'}</td>` : ''}
+                        <td><span class="pin-badge">${pin.label}</span></td>
+                        <td>${pin.config || '—'}</td>
+                        <td>${pin.expected || '—'}</td>
+                        <td>${pin.expected ? `<span class="status-chip ${isMatch ? 'match' : 'mismatch'}">${isMatch ? 'OK' : 'MISMATCH'}</span>` : '—'}</td>
+                    </tr>`;
                 }
             }
 
@@ -1424,43 +1109,33 @@
 
             const axisCounts = { x: 0, y: 0, z: 0, e: 0 };
             motors.forEach(m => axisCounts[m.axis]++);
-
             const usedSlots = slotMap.filter(s => s !== null).length;
 
             statsRow.innerHTML = `
-                <div class="stat-chip"><span class="value" style="color: var(--accent-blue);">${motors.length}</span> Motors</div>
-                <div class="stat-chip"><span class="value">${usedSlots}/8</span> Slots</div>
-                <div class="stat-chip"><span class="value" style="color: var(--accent-cyan);">${axisCounts.x}</span> X</div>
-                <div class="stat-chip"><span class="value" style="color: var(--accent-pink);">${axisCounts.y}</span> Y</div>
-                <div class="stat-chip"><span class="value" style="color: var(--accent-green);">${axisCounts.z}</span> Z</div>
-                <div class="stat-chip"><span class="value" style="color: var(--accent-orange);">${axisCounts.e}</span> E</div>
-                <div class="stat-chip"><span class="value" style="color: ${issues.length > 0 ? 'var(--accent-red)' : 'var(--accent-green)'};">${issues.length}</span> Issues</div>
+                <div class="stat-chip"><span class="value">${motors.length}</span> motors</div>
+                <div class="stat-chip"><span class="value">${usedSlots}/8</span> slots</div>
+                <div class="stat-chip"><span class="value">${axisCounts.x}</span> X</div>
+                <div class="stat-chip"><span class="value">${axisCounts.y}</span> Y</div>
+                <div class="stat-chip"><span class="value">${axisCounts.z}</span> Z</div>
+                <div class="stat-chip"><span class="value">${axisCounts.e}</span> E</div>
+                <div class="stat-chip"><span class="value" style="color: ${issues.length > 0 ? 'var(--error)' : 'var(--success)'}">${issues.length}</span> issues</div>
             `;
-
             statsCard.style.display = 'block';
         }
 
         function parseConfig() {
             const text = document.getElementById('configInput').value;
-            if (!text.trim()) {
-                alert('Please paste a configuration first.');
-                return;
-            }
+            if (!text.trim()) return;
 
             const sections = parseKlipperConfig(text);
             const motors = extractMotors(sections);
-
-            if (motors.length === 0) {
-                alert('No stepper motors found in configuration.');
-                return;
-            }
+            if (motors.length === 0) { alert('No stepper motors found.'); return; }
 
             const boardSelect = document.getElementById('boardSelect');
             let boardId = boardSelect.value;
 
             if (boardId === 'auto') {
                 const detection = detectBoard(sections);
-                
                 if (detection.boardId && detection.confidence > 0.2) {
                     boardId = detection.boardId;
                     boardSelect.value = boardId;
@@ -1468,16 +1143,11 @@
                     const badge = document.getElementById('detectedBadge');
                     badge.style.display = 'inline-flex';
                     badge.className = `detected-badge ${detection.clearWinner ? '' : 'low-confidence'}`;
-                    document.getElementById('detectedText').textContent = 
-                        `${detection.clearWinner ? '✓' : '?'} ${BOARDS[boardId].name.split(' ').slice(-2).join(' ')}`;
-                    
-                    // Show detection debug
+                    document.getElementById('detectedText').textContent = BOARDS[boardId].name.split(' ').slice(-2).join(' ');
                     renderDetectionDebug(detection.results, boardId);
                 } else {
-                    alert('Could not confidently detect board. Please select manually.');
-                    if (detection.results) {
-                        renderDetectionDebug(detection.results, null);
-                    }
+                    alert('Could not detect board. Please select manually.');
+                    if (detection.results) renderDetectionDebug(detection.results, null);
                     return;
                 }
             } else {
@@ -1491,7 +1161,7 @@
 
             document.getElementById('emptyState').style.display = 'none';
             document.getElementById('boardViz').style.display = 'block';
-            document.getElementById('vizTitle').innerHTML = `🖥️ ${currentBoard.name}`;
+            document.getElementById('vizTitle').textContent = currentBoard.name;
 
             renderBoardViz(currentBoard, slotMap, issues);
             renderIssues(issues, currentBoard);
@@ -1507,7 +1177,7 @@
                 currentBoard = BOARDS[document.getElementById('boardSelect').value];
                 const { slotMap, issues } = mapMotorsToSlots(parsedConfig.motors, currentBoard);
 
-                document.getElementById('vizTitle').innerHTML = `🖥️ ${currentBoard.name}`;
+                document.getElementById('vizTitle').textContent = currentBoard.name;
                 renderBoardViz(currentBoard, slotMap, issues);
                 renderIssues(issues, currentBoard);
                 renderComparisonTable(currentBoard, parsedConfig.motors, slotMap);
@@ -1518,127 +1188,8 @@
         function switchTab(tabId) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
             event.target.classList.add('active');
             document.getElementById(tabId + 'Tab').classList.add('active');
-        }
-
-        function loadExample() {
-            // Kraken example config
-            document.getElementById('configInput').value = `[stepper_x]
-step_pin: PC14
-dir_pin: !PC13
-enable_pin: !PE6
-rotation_distance: 40
-microsteps: 16
-endstop_pin: tmc5160_stepper_x:virtual_endstop
-position_min: 0
-position_endstop: 350
-position_max: 355
-homing_speed: 80
-homing_retract_dist: 0
-homing_positive_dir: True
-
-[tmc5160 stepper_x]
-cs_pin: PD6
-diag1_pin: ^!PC15
-spi_software_sclk_pin: PC6
-spi_software_mosi_pin: PC8
-spi_software_miso_pin: PC7
-run_current: 1.4
-driver_SGT: 1
-sense_resistor: 0.05
-
-[stepper_y]
-step_pin: PE2
-dir_pin: !PE1
-enable_pin: !PE0
-rotation_distance: 40
-microsteps: 16
-endstop_pin: PC0
-position_min: 0
-position_endstop: 360
-position_max: 364
-homing_speed: 100
-homing_retract_dist: 0
-homing_positive_dir: true
-
-[tmc5160 stepper_y]
-cs_pin: PD4
-spi_software_sclk_pin: PC6
-spi_software_mosi_pin: PC8
-spi_software_miso_pin: PC7
-run_current: 1.4
-sense_resistor: 0.05
-
-[stepper_z]
-step_pin: PB4
-dir_pin: PB3
-enable_pin: !PB5
-rotation_distance: 40
-gear_ratio: 80:12
-microsteps: 16
-endstop_pin: probe:z_virtual_endstop
-position_max: 347
-position_min: -5
-homing_speed: 15.0
-
-[tmc5160 stepper_z]
-cs_pin: PA9
-spi_software_sclk_pin: PC6
-spi_software_mosi_pin: PC8
-spi_software_miso_pin: PC7
-run_current: 0.800
-sense_resistor: 0.075
-
-[stepper_z1]
-step_pin: PG9
-dir_pin: !PG10
-enable_pin: !PG13
-rotation_distance: 40
-gear_ratio: 80:12
-microsteps: 16
-
-[tmc5160 stepper_z1]
-cs_pin: PD2
-spi_software_sclk_pin: PC6
-spi_software_mosi_pin: PC8
-spi_software_miso_pin: PC7
-run_current: 0.800
-sense_resistor: 0.075
-
-[stepper_z2]
-step_pin: PG11
-dir_pin: PD7
-enable_pin: !PG12
-rotation_distance: 40
-gear_ratio: 80:12
-microsteps: 16
-
-[tmc5160 stepper_z2]
-cs_pin: PA15
-spi_software_sclk_pin: PC6
-spi_software_mosi_pin: PC8
-spi_software_miso_pin: PC7
-run_current: 0.800
-sense_resistor: 0.075
-
-[stepper_z3]
-step_pin: PG15
-dir_pin: !PB6
-enable_pin: !PG14
-rotation_distance: 40
-gear_ratio: 80:12
-microsteps: 16
-
-[tmc5160 stepper_z3]
-cs_pin: PA10
-spi_software_sclk_pin: PC6
-spi_software_mosi_pin: PC8
-spi_software_miso_pin: PC7
-run_current: 0.800
-sense_resistor: 0.075`;
-            parseConfig();
         }
 
         function clearAll() {
@@ -1650,7 +1201,7 @@ sense_resistor: 0.075`;
             document.getElementById('detectionCard').style.display = 'none';
             document.getElementById('boardSelect').value = 'auto';
             document.getElementById('detectedBadge').style.display = 'none';
-            document.getElementById('tableContainer').innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>No data</p></div>`;
+            document.getElementById('tableContainer').innerHTML = `<div class="empty-state"><p>No data</p></div>`;
             currentBoard = null;
             parsedConfig = null;
             lastDetectionResults = null;

@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klipper Pin Mapper</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --bg-card: #1c2128;
+            --accent-blue: #58a6ff;
+            --accent-green: #3fb950;
+            --accent-yellow: #d29922;
+            --accent-red: #f85149;
+            --accent-purple: #a371f7;
+            --accent-cyan: #39c5cf;
+            --accent-orange: #db6d28;
+            --accent-pink: #db61a2;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --text-muted: #484f58;
+            --border-color: #30363d;
+            --border-highlight: #388bfd;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .subtitle { font-size: 0.75rem; color: var(--text-muted); }
+
+        .board-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .board-selector label { font-size: 0.75rem; color: var(--text-secondary); }
+
+        select {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.8rem;
+            cursor: pointer;
+            min-width: 220px;
+        }
+
+        select:focus { outline: none; border-color: var(--accent-blue); }
+
+        .detected-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.65rem;
+            background: rgba(63, 185, 80, 0.15);
+            border: 1px solid rgba(63, 185, 80, 0.4);
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: var(--accent-green);
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 1200px) {
+            .main-layout { grid-template-columns: 1fr; }
+        }
+
+        .input-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-body { padding: 1rem; }
+
+        textarea {
+            width: 100%;
+            height: 280px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.75rem;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            line-height: 1.5;
+            resize: vertical;
+        }
+
+        textarea:focus { outline: none; border-color: var(--accent-blue); }
+
+        .btn-row { display: flex; gap: 0.5rem; }
+
+        button {
+            flex: 1;
+            padding: 0.65rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-primary { background: var(--accent-blue); color: var(--bg-primary); }
+        .btn-primary:hover { background: #79b8ff; }
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+        .btn-secondary:hover { background: var(--border-color); color: var(--text-primary); }
+
+        /* Board Visualization */
+        .board-container {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            min-height: 500px;
+        }
+
+        .board-outline {
+            background: #1a1f26;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            position: relative;
+            padding: 1rem;
+        }
+
+        .board-label {
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: var(--bg-secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+        }
+
+        .driver-slots {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 1000px) {
+            .driver-slots { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .driver-slot {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.65rem;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .driver-slot.active {
+            border-color: var(--slot-color, var(--accent-blue));
+            box-shadow: 0 0 15px rgba(88, 166, 255, 0.15);
+        }
+
+        .driver-slot.has-issue {
+            border-color: var(--accent-red);
+            background: rgba(248, 81, 73, 0.05);
+        }
+
+        .driver-slot.active::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            height: 3px;
+            background: var(--slot-color, var(--accent-blue));
+            border-radius: 6px 6px 0 0;
+        }
+
+        .slot-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.35rem;
+        }
+
+        .slot-id { font-size: 0.6rem; color: var(--text-muted); font-weight: 500; }
+
+        .slot-driver {
+            font-size: 0.55rem;
+            padding: 0.1rem 0.35rem;
+            background: var(--bg-primary);
+            border-radius: 3px;
+            color: var(--accent-yellow);
+        }
+
+        .slot-motor {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .slot-motor .axis {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            line-height: 18px;
+            text-align: center;
+            background: var(--slot-color, var(--bg-primary));
+            color: var(--bg-primary);
+            border-radius: 4px;
+            margin-right: 0.25rem;
+            font-size: 0.7rem;
+        }
+
+        .slot-pins {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.2rem;
+            font-size: 0.55rem;
+        }
+
+        .pin-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.15rem 0.25rem;
+            background: var(--bg-primary);
+            border-radius: 3px;
+        }
+
+        .pin-label { color: var(--text-muted); }
+        .pin-value { color: var(--accent-purple); font-weight: 500; }
+        .pin-value.match { color: var(--accent-green); }
+        .pin-value.mismatch { color: var(--accent-red); }
+
+        .pin-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-left: 3px;
+            flex-shrink: 0;
+        }
+
+        .pin-status.ok { background: var(--accent-green); }
+        .pin-status.warn { background: var(--accent-red); }
+
+        /* Issues Panel */
+        .issues-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .issue-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            padding: 0.6rem;
+            background: var(--bg-primary);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid var(--accent-red);
+        }
+
+        .issue-item.warning {
+            border-left-color: var(--accent-yellow);
+        }
+
+        .issue-icon {
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .issue-content {
+            flex: 1;
+            font-size: 0.7rem;
+        }
+
+        .issue-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.15rem;
+        }
+
+        .issue-detail {
+            color: var(--text-secondary);
+        }
+
+        .issue-fix {
+            margin-top: 0.35rem;
+            padding: 0.35rem 0.5rem;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--accent-cyan);
+        }
+
+        /* Comparison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.7rem;
+        }
+
+        .comparison-table th {
+            position: sticky;
+            top: 0;
+            background: var(--bg-tertiary);
+            padding: 0.5rem 0.6rem;
+            text-align: left;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comparison-table td {
+            padding: 0.45rem 0.6rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comparison-table tr:hover td { background: var(--bg-tertiary); }
+
+        .comparison-table tr.mismatch-row td {
+            background: rgba(248, 81, 73, 0.08);
+        }
+
+        .pin-badge {
+            display: inline-block;
+            padding: 0.12rem 0.35rem;
+            border-radius: 3px;
+            font-size: 0.6rem;
+            font-weight: 500;
+        }
+
+        .pin-badge.step { background: rgba(88, 166, 255, 0.2); color: var(--accent-blue); }
+        .pin-badge.dir { background: rgba(163, 113, 247, 0.2); color: var(--accent-purple); }
+        .pin-badge.enable { background: rgba(63, 185, 80, 0.2); color: var(--accent-green); }
+        .pin-badge.uart { background: rgba(210, 153, 34, 0.2); color: var(--accent-yellow); }
+        .pin-badge.cs { background: rgba(219, 97, 162, 0.2); color: var(--accent-pink); }
+
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 10px;
+            font-size: 0.6rem;
+            font-weight: 500;
+        }
+
+        .status-chip.match {
+            background: rgba(63, 185, 80, 0.15);
+            color: var(--accent-green);
+        }
+
+        .status-chip.mismatch {
+            background: rgba(248, 81, 73, 0.15);
+            color: var(--accent-red);
+        }
+
+        /* Stats */
+        .stats-row {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-chip {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.4rem 0.6rem;
+            background: var(--bg-primary);
+            border-radius: 6px;
+            font-size: 0.7rem;
+        }
+
+        .stat-chip .value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+
+        .tab:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+        .tab.active { background: var(--accent-blue); color: var(--bg-primary); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .empty-icon { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.5; }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--bg-primary);
+            border-radius: 6px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.65rem;
+        }
+
+        .legend-color { width: 10px; height: 10px; border-radius: 3px; }
+        .axis-x { background: var(--accent-cyan); }
+        .axis-y { background: var(--accent-pink); }
+        .axis-z { background: var(--accent-green); }
+        .axis-e { background: var(--accent-orange); }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-tertiary); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        .no-issues {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: rgba(63, 185, 80, 0.1);
+            border-radius: 6px;
+            color: var(--accent-green);
+            font-size: 0.75rem;
+        }
+
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .config-suggestion {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .config-suggestion pre {
+            font-size: 0.65rem;
+            color: var(--accent-cyan);
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">📍</div>
+                <div>
+                    <h1>Klipper Pin Mapper</h1>
+                    <div class="subtitle">Map & validate stepper pin assignments</div>
+                </div>
+            </div>
+            <div class="board-selector">
+                <label>Board:</label>
+                <select id="boardSelect" onchange="onBoardChange()">
+                    <option value="auto">Auto-detect</option>
+                    <optgroup label="BTT Octopus Pro">
+                        <option value="octopus_pro_v1.0">Octopus Pro v1.0</option>
+                        <option value="octopus_pro_v1.1">Octopus Pro v1.1</option>
+                    </optgroup>
+                    <optgroup label="BTT Octopus">
+                        <option value="octopus_v1.1">Octopus v1.1</option>
+                    </optgroup>
+                    <optgroup label="BTT Kraken">
+                        <option value="kraken">Kraken</option>
+                    </optgroup>
+                    <optgroup label="BTT Manta M8P">
+                        <option value="manta_m8p_v1">Manta M8P v1.0/1.1</option>
+                        <option value="manta_m8p_v2">Manta M8P v2.0</option>
+                    </optgroup>
+                </select>
+                <span class="detected-badge" id="detectedBadge" style="display: none;">
+                    <span>✓</span>
+                    <span id="detectedText">Detected</span>
+                </span>
+            </div>
+        </header>
+
+        <div class="main-layout">
+            <div class="input-panel">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">⚙️ Configuration Input</span>
+                    </div>
+                    <div class="card-body">
+                        <textarea id="configInput" placeholder="Paste your Klipper printer.cfg stepper and TMC driver sections here..."></textarea>
+                        <div class="btn-row" style="margin-top: 0.75rem;">
+                            <button class="btn-primary" onclick="parseConfig()">Map Pins</button>
+                            <button class="btn-secondary" onclick="loadExample()">Example</button>
+                            <button class="btn-secondary" onclick="clearAll()">Clear</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" id="issuesCard" style="display: none;">
+                    <div class="card-header">
+                        <span class="card-title">⚠️ Pin Mismatches</span>
+                        <span id="issueCount" style="font-size: 0.7rem; color: var(--accent-red);"></span>
+                    </div>
+                    <div class="card-body">
+                        <div class="issues-list" id="issuesList"></div>
+                    </div>
+                </div>
+
+                <div class="card" id="statsCard" style="display: none;">
+                    <div class="card-header">
+                        <span class="card-title">📊 Summary</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="stats-row" id="statsRow"></div>
+                        <div class="legend" style="margin-top: 0.75rem;">
+                            <div class="legend-item"><div class="legend-color axis-x"></div><span>X</span></div>
+                            <div class="legend-item"><div class="legend-color axis-y"></div><span>Y</span></div>
+                            <div class="legend-item"><div class="legend-color axis-z"></div><span>Z</span></div>
+                            <div class="legend-item"><div class="legend-color axis-e"></div><span>Extruder</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="board-viz">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title" id="vizTitle">🖥️ Board Visualization</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="tabs">
+                            <div class="tab active" onclick="switchTab('board')">Board View</div>
+                            <div class="tab" onclick="switchTab('table')">Comparison Table</div>
+                        </div>
+
+                        <div class="tab-content active" id="boardTab">
+                            <div class="board-container" id="boardContainer">
+                                <div class="empty-state" id="emptyState">
+                                    <div class="empty-icon">🔌</div>
+                                    <p>Paste your configuration and click "Map Pins"<br>to validate your pin assignments</p>
+                                </div>
+                                <div id="boardViz" style="display: none;"></div>
+                            </div>
+                        </div>
+
+                        <div class="tab-content" id="tableTab">
+                            <div class="table-container" id="tableContainer">
+                                <div class="empty-state">
+                                    <div class="empty-icon">📋</div>
+                                    <p>No data to display</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Board definitions - UPDATED with v1.0 vs v1.1 differences
+        const BOARDS = {
+            'octopus_pro_v1.0': {
+                name: 'BTT Octopus Pro v1.0',
+                mcu: 'STM32F446/F429',
+                driverCount: 8,
+                drivers: [
+                    { id: 'DRIVER0', step: 'PF13', dir: 'PF12', enable: 'PF14', uart: 'PC4', cs: 'PC4', diag: 'PG6' },
+                    { id: 'DRIVER1', step: 'PG0', dir: 'PG1', enable: 'PF15', uart: 'PD11', cs: 'PD11', diag: 'PG9' },
+                    { id: 'DRIVER2', step: 'PF11', dir: 'PG3', enable: 'PG5', uart: 'PC6', cs: 'PC6', diag: 'PG10' },
+                    { id: 'DRIVER3', step: 'PG4', dir: 'PC1', enable: 'PA0', uart: 'PC7', cs: 'PC7', diag: 'PG11' },  // PA0 in v1.0
+                    { id: 'DRIVER4', step: 'PF9', dir: 'PF10', enable: 'PG2', uart: 'PF2', cs: 'PF2', diag: 'PG12' },
+                    { id: 'DRIVER5', step: 'PC13', dir: 'PF0', enable: 'PF1', uart: 'PE4', cs: 'PE4', diag: 'PG13' },
+                    { id: 'DRIVER6', step: 'PE2', dir: 'PE3', enable: 'PD4', uart: 'PE1', cs: 'PE1', diag: 'PG14' },
+                    { id: 'DRIVER7', step: 'PE6', dir: 'PA14', enable: 'PE0', uart: 'PD3', cs: 'PD3', diag: 'PG15' }
+                ],
+                signaturePins: ['PF13', 'PF11', 'PF9', 'PE2', 'PE6', 'PG0', 'PG4', 'PC13'],
+                notes: 'V1.0 uses PA0 for Motor4-EN, PA2 for HE0'
+            },
+            'octopus_pro_v1.1': {
+                name: 'BTT Octopus Pro v1.1',
+                mcu: 'STM32F446/F429/H723',
+                driverCount: 8,
+                drivers: [
+                    { id: 'DRIVER0', step: 'PF13', dir: 'PF12', enable: 'PF14', uart: 'PC4', cs: 'PC4', diag: 'PG6' },
+                    { id: 'DRIVER1', step: 'PG0', dir: 'PG1', enable: 'PF15', uart: 'PD11', cs: 'PD11', diag: 'PG9' },
+                    { id: 'DRIVER2', step: 'PF11', dir: 'PG3', enable: 'PG5', uart: 'PC6', cs: 'PC6', diag: 'PG10' },
+                    { id: 'DRIVER3', step: 'PG4', dir: 'PC1', enable: 'PA2', uart: 'PC7', cs: 'PC7', diag: 'PG11' },  // PA2 in v1.1!
+                    { id: 'DRIVER4', step: 'PF9', dir: 'PF10', enable: 'PG2', uart: 'PF2', cs: 'PF2', diag: 'PG12' },
+                    { id: 'DRIVER5', step: 'PC13', dir: 'PF0', enable: 'PF1', uart: 'PE4', cs: 'PE4', diag: 'PG13' },
+                    { id: 'DRIVER6', step: 'PE2', dir: 'PE3', enable: 'PD4', uart: 'PE1', cs: 'PE1', diag: 'PG14' },
+                    { id: 'DRIVER7', step: 'PE6', dir: 'PA14', enable: 'PE0', uart: 'PD3', cs: 'PD3', diag: 'PG15' }
+                ],
+                signaturePins: ['PF13', 'PF11', 'PF9', 'PE2', 'PE6', 'PG0', 'PG4', 'PC13'],
+                // Unique to v1.1: PA2 as enable, PB0 as RGB
+                uniquePins: { 'PA2': 'Motor4-EN', 'PB0': 'RGB' },
+                notes: 'V1.1 uses PA2 for Motor4-EN (changed from PA0), PB0 for RGB'
+            },
+            'octopus_v1.1': {
+                name: 'BTT Octopus v1.1',
+                mcu: 'STM32F446/F429',
+                driverCount: 8,
+                drivers: [
+                    { id: 'DRIVER0', step: 'PF13', dir: 'PF12', enable: 'PF14', uart: 'PC4', diag: 'PG6' },
+                    { id: 'DRIVER1', step: 'PG0', dir: 'PG1', enable: 'PF15', uart: 'PD11', diag: 'PG9' },
+                    { id: 'DRIVER2', step: 'PF11', dir: 'PG3', enable: 'PG5', uart: 'PC6', diag: 'PG10' },
+                    { id: 'DRIVER3', step: 'PG4', dir: 'PC1', enable: 'PA0', uart: 'PC7', diag: 'PG11' },
+                    { id: 'DRIVER4', step: 'PF9', dir: 'PF10', enable: 'PG2', uart: 'PF2', diag: 'PG12' },
+                    { id: 'DRIVER5', step: 'PC13', dir: 'PF0', enable: 'PF1', uart: 'PE4', diag: 'PG13' },
+                    { id: 'DRIVER6', step: 'PE2', dir: 'PE3', enable: 'PD4', uart: 'PE1', diag: 'PG14' },
+                    { id: 'DRIVER7', step: 'PE6', dir: 'PA14', enable: 'PE0', uart: 'PD3', diag: 'PG15' }
+                ],
+                signaturePins: ['PF13', 'PF11', 'PF9', 'PE2', 'PE6']
+            },
+            'kraken': {
+                name: 'BTT Kraken',
+                mcu: 'STM32H723',
+                driverCount: 8,
+                drivers: [
+                    { id: 'M1', step: 'PC14', dir: 'PC13', enable: 'PE6', uart: 'PD6', diag: 'PC15' },
+                    { id: 'M2', step: 'PE5', dir: 'PE4', enable: 'PE3', uart: 'PD5', diag: 'PF0' },
+                    { id: 'M3', step: 'PE2', dir: 'PE1', enable: 'PE0', uart: 'PD4', diag: 'PF1' },
+                    { id: 'M4', step: 'PB9', dir: 'PB8', enable: 'PB7', uart: 'PD3', diag: 'PF2' },
+                    { id: 'M5', step: 'PG9', dir: 'PG10', enable: 'PG13', uart: 'PD2', diag: 'PF3' },
+                    { id: 'M6', step: 'PG11', dir: 'PD7', enable: 'PG12', uart: 'PA15', diag: 'PF4' },
+                    { id: 'M7', step: 'PB4', dir: 'PB3', enable: 'PB5', uart: 'PA9', diag: 'PF10' },
+                    { id: 'M8', step: 'PG15', dir: 'PB6', enable: 'PG14', uart: 'PA10', diag: 'PC0' }
+                ],
+                signaturePins: ['PC14', 'PE5', 'PB9', 'PG9', 'PG11', 'PB4', 'PG15']
+            },
+            'manta_m8p_v1': {
+                name: 'BTT Manta M8P v1.0/1.1',
+                mcu: 'STM32G0B1',
+                driverCount: 8,
+                drivers: [
+                    { id: 'M1', step: 'PE2', dir: 'PB4', enable: 'PC11', uart: 'PC10', diag: 'PF3' },
+                    { id: 'M2', step: 'PF12', dir: 'PF11', enable: 'PB3', uart: 'PF13', diag: 'PF4' },
+                    { id: 'M3', step: 'PD7', dir: 'PD6', enable: 'PF10', uart: 'PF9', diag: 'PF5' },
+                    { id: 'M4', step: 'PD3', dir: 'PD2', enable: 'PD5', uart: 'PD4', diag: 'PC0' },
+                    { id: 'M5', step: 'PC9', dir: 'PC8', enable: 'PD1', uart: 'PD0', diag: 'PC1' },
+                    { id: 'M6', step: 'PA10', dir: 'PA14', enable: 'PA15', uart: 'PF8', diag: 'PC2' },
+                    { id: 'M7', step: 'PD11', dir: 'PD9', enable: 'PD15', uart: 'PD14', diag: 'PC3' },
+                    { id: 'M8', step: 'PD8', dir: 'PC6', enable: 'PD10', uart: 'PD13', diag: 'PA0' }
+                ],
+                signaturePins: ['PE2', 'PF12', 'PD7', 'PD3', 'PC9', 'PA10', 'PD11', 'PD8']
+            },
+            'manta_m8p_v2': {
+                name: 'BTT Manta M8P v2.0',
+                mcu: 'STM32H723',
+                driverCount: 8,
+                drivers: [
+                    { id: 'M1', step: 'PE6', dir: 'PE5', enable: 'PC14', uart: 'PC13', diag: 'PF0' },
+                    { id: 'M2', step: 'PE2', dir: 'PE1', enable: 'PE4', uart: 'PE3', diag: 'PF1' },
+                    { id: 'M3', step: 'PB8', dir: 'PB7', enable: 'PE0', uart: 'PB9', diag: 'PF2' },
+                    { id: 'M4', step: 'PB4', dir: 'PB3', enable: 'PB6', uart: 'PB5', diag: 'PF3' },
+                    { id: 'M5', step: 'PG13', dir: 'PG12', enable: 'PG15', uart: 'PG14', diag: 'PF4' },
+                    { id: 'M6', step: 'PG9', dir: 'PD7', enable: 'PG10', uart: 'PG11', diag: 'PF5' },
+                    { id: 'M7', step: 'PD4', dir: 'PD3', enable: 'PD6', uart: 'PD5', diag: 'PF6' },
+                    { id: 'M8', step: 'PC7', dir: 'PC8', enable: 'PD2', uart: 'PC6', diag: 'PF10' }
+                ],
+                signaturePins: ['PE6', 'PE2', 'PB8', 'PB4', 'PG13', 'PG9', 'PD4', 'PC7']
+            }
+        };
+
+        const AXIS_COLORS = {
+            'x': 'var(--accent-cyan)',
+            'y': 'var(--accent-pink)',
+            'z': 'var(--accent-green)',
+            'e': 'var(--accent-orange)'
+        };
+
+        let currentBoard = null;
+        let parsedConfig = null;
+
+        function normalizePin(pin) {
+            if (!pin) return null;
+            pin = pin.replace(/^!/, '').replace(/^\^/, '').trim().toUpperCase();
+            pin = pin.replace(/[._]/g, '');
+            return pin;
+        }
+
+        function parseKlipperConfig(text) {
+            const sections = {};
+            const lines = text.split('\n');
+            let currentSection = null;
+            let currentSectionName = null;
+
+            for (let line of lines) {
+                line = line.trim();
+                if (!line || line.startsWith('#')) continue;
+
+                const sectionMatch = line.match(/^\[([^\]]+)\]/);
+                if (sectionMatch) {
+                    currentSectionName = sectionMatch[1].trim();
+                    sections[currentSectionName] = {};
+                    currentSection = sections[currentSectionName];
+                    continue;
+                }
+
+                if (currentSection && line.includes(':')) {
+                    const idx = line.indexOf(':');
+                    const key = line.substring(0, idx).trim();
+                    let value = line.substring(idx + 1).trim();
+                    const commentIdx = value.indexOf('#');
+                    if (commentIdx > -1) value = value.substring(0, commentIdx).trim();
+                    currentSection[key] = value;
+                }
+            }
+            return sections;
+        }
+
+        function detectBoard(sections) {
+            const configPins = new Set();
+            let hasPA2Enable = false;
+            let hasPA0Enable = false;
+
+            for (const [name, cfg] of Object.entries(sections)) {
+                if (name.includes('stepper') || name.includes('tmc')) {
+                    for (const [key, val] of Object.entries(cfg)) {
+                        const pin = normalizePin(val);
+                        if (pin && pin.match(/^P[A-G]\d+$/)) {
+                            configPins.add(pin);
+                            if (key === 'enable_pin') {
+                                if (pin === 'PA2') hasPA2Enable = true;
+                                if (pin === 'PA0') hasPA0Enable = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            let bestMatch = null;
+            let bestScore = 0;
+
+            for (const [boardId, board] of Object.entries(BOARDS)) {
+                let matches = 0;
+                for (const pin of board.signaturePins) {
+                    if (configPins.has(normalizePin(pin))) matches++;
+                }
+                const score = matches / board.signaturePins.length;
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMatch = boardId;
+                }
+            }
+
+            // Differentiate between Octopus Pro v1.0 and v1.1
+            if (bestMatch && bestMatch.includes('octopus_pro')) {
+                if (hasPA2Enable && !hasPA0Enable) {
+                    bestMatch = 'octopus_pro_v1.1';
+                } else if (hasPA0Enable && !hasPA2Enable) {
+                    bestMatch = 'octopus_pro_v1.0';
+                }
+            }
+
+            return { boardId: bestMatch, confidence: bestScore };
+        }
+
+        function extractMotors(sections) {
+            const motors = [];
+
+            for (const [name, cfg] of Object.entries(sections)) {
+                const stepperMatch = name.match(/^stepper_([xyz])(\d*)$/) || name.match(/^(extruder)(\d*)$/);
+                if (stepperMatch) {
+                    let axis = stepperMatch[1];
+                    let num = stepperMatch[2] || '';
+                    if (axis === 'extruder') axis = 'e';
+
+                    const motor = {
+                        name: name,
+                        axis: axis,
+                        num: num,
+                        stepPin: normalizePin(cfg.step_pin),
+                        dirPin: normalizePin(cfg.dir_pin),
+                        enablePin: normalizePin(cfg.enable_pin),
+                        driver: null,
+                        driverConfig: {}
+                    };
+
+                    for (const [drvName, drvCfg] of Object.entries(sections)) {
+                        if (drvName.match(/^tmc\d+/) && drvName.includes(name)) {
+                            motor.driver = drvName.split(' ')[0].toUpperCase();
+                            motor.driverConfig = {
+                                uartPin: normalizePin(drvCfg.uart_pin),
+                                csPin: normalizePin(drvCfg.cs_pin),
+                                runCurrent: drvCfg.run_current
+                            };
+                            break;
+                        }
+                    }
+
+                    motors.push(motor);
+                }
+            }
+
+            return motors;
+        }
+
+        function mapMotorsToSlots(motors, board) {
+            const slotMap = new Array(board.driverCount).fill(null);
+            const issues = [];
+
+            for (const motor of motors) {
+                let matched = false;
+                for (let i = 0; i < board.drivers.length; i++) {
+                    const slot = board.drivers[i];
+                    if (normalizePin(slot.step) === motor.stepPin) {
+                        slotMap[i] = motor;
+                        matched = true;
+
+                        // Check for pin mismatches
+                        if (motor.dirPin && normalizePin(slot.dir) !== motor.dirPin) {
+                            issues.push({
+                                type: 'mismatch',
+                                motor: motor.name,
+                                slot: slot.id,
+                                pin: 'dir_pin',
+                                expected: slot.dir,
+                                found: motor.dirPin,
+                                fix: `dir_pin: ${slot.dir}`
+                            });
+                        }
+                        if (motor.enablePin && normalizePin(slot.enable) !== motor.enablePin) {
+                            issues.push({
+                                type: 'mismatch',
+                                motor: motor.name,
+                                slot: slot.id,
+                                pin: 'enable_pin',
+                                expected: slot.enable,
+                                found: motor.enablePin,
+                                fix: `enable_pin: !${slot.enable}`
+                            });
+                        }
+                        if (motor.driverConfig.uartPin && slot.uart && normalizePin(slot.uart) !== motor.driverConfig.uartPin) {
+                            issues.push({
+                                type: 'mismatch',
+                                motor: motor.name,
+                                slot: slot.id,
+                                pin: 'uart_pin',
+                                expected: slot.uart,
+                                found: motor.driverConfig.uartPin,
+                                fix: `uart_pin: ${slot.uart}`
+                            });
+                        }
+                        if (motor.driverConfig.csPin && slot.cs && normalizePin(slot.cs) !== motor.driverConfig.csPin) {
+                            issues.push({
+                                type: 'mismatch',
+                                motor: motor.name,
+                                slot: slot.id,
+                                pin: 'cs_pin',
+                                expected: slot.cs,
+                                found: motor.driverConfig.csPin,
+                                fix: `cs_pin: ${slot.cs}`
+                            });
+                        }
+                        break;
+                    }
+                }
+                if (!matched) {
+                    issues.push({
+                        type: 'warning',
+                        motor: motor.name,
+                        pin: 'step_pin',
+                        found: motor.stepPin,
+                        message: `Step pin ${motor.stepPin} doesn't match any driver slot on this board`
+                    });
+                }
+            }
+
+            return { slotMap, issues };
+        }
+
+        function renderBoardViz(board, slotMap, issues) {
+            const boardViz = document.getElementById('boardViz');
+            const issueSlots = new Set(issues.filter(i => i.type === 'mismatch').map(i => i.slot));
+
+            let html = `
+                <div class="board-outline">
+                    <div class="board-label">${board.name} • ${board.mcu}</div>
+                    <div class="driver-slots">
+            `;
+
+            for (let i = 0; i < board.driverCount; i++) {
+                const slot = board.drivers[i];
+                const motor = slotMap[i];
+                const isActive = motor !== null;
+                const hasIssue = issueSlots.has(slot.id);
+                const axisColor = motor ? AXIS_COLORS[motor.axis] : 'transparent';
+
+                const checkPin = (configPin, expectedPin) => {
+                    if (!configPin) return '';
+                    return normalizePin(expectedPin) === configPin ? 'ok' : 'warn';
+                };
+
+                html += `
+                    <div class="driver-slot ${isActive ? 'active' : ''} ${hasIssue ? 'has-issue' : ''}" style="--slot-color: ${axisColor}">
+                        <div class="slot-header">
+                            <span class="slot-id">${slot.id}</span>
+                            ${motor?.driver ? `<span class="slot-driver">${motor.driver}</span>` : ''}
+                        </div>
+                        <div class="slot-motor">
+                            ${motor ? `<span class="axis">${motor.axis.toUpperCase()}</span>${motor.name}` : '<span style="color: var(--text-muted); font-size: 0.7rem;">Empty</span>'}
+                        </div>
+                        <div class="slot-pins">
+                            <div class="pin-item">
+                                <span class="pin-label">STEP</span>
+                                <span class="pin-value">${slot.step}</span>
+                                ${motor ? `<span class="pin-status ${checkPin(motor.stepPin, slot.step)}"></span>` : ''}
+                            </div>
+                            <div class="pin-item">
+                                <span class="pin-label">DIR</span>
+                                <span class="pin-value">${slot.dir}</span>
+                                ${motor ? `<span class="pin-status ${checkPin(motor.dirPin, slot.dir)}"></span>` : ''}
+                            </div>
+                            <div class="pin-item">
+                                <span class="pin-label">EN</span>
+                                <span class="pin-value">${slot.enable}</span>
+                                ${motor ? `<span class="pin-status ${checkPin(motor.enablePin, slot.enable)}"></span>` : ''}
+                            </div>
+                            <div class="pin-item">
+                                <span class="pin-label">${slot.cs ? 'CS' : 'UART'}</span>
+                                <span class="pin-value">${slot.cs || slot.uart}</span>
+                                ${motor?.driverConfig ? `<span class="pin-status ${checkPin(motor.driverConfig.csPin || motor.driverConfig.uartPin, slot.cs || slot.uart)}"></span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += '</div></div>';
+            boardViz.innerHTML = html;
+        }
+
+        function renderIssues(issues, board) {
+            const issuesCard = document.getElementById('issuesCard');
+            const issuesList = document.getElementById('issuesList');
+            const issueCount = document.getElementById('issueCount');
+
+            if (issues.length === 0) {
+                issuesCard.style.display = 'block';
+                issueCount.textContent = '';
+                issuesList.innerHTML = `
+                    <div class="no-issues">
+                        <span>✓</span>
+                        All pins match ${board.name} pinout!
+                    </div>
+                `;
+                return;
+            }
+
+            issuesCard.style.display = 'block';
+            issueCount.textContent = `${issues.length} issue${issues.length > 1 ? 's' : ''}`;
+
+            let html = '';
+            for (const issue of issues) {
+                if (issue.type === 'mismatch') {
+                    html += `
+                        <div class="issue-item">
+                            <span class="issue-icon">❌</span>
+                            <div class="issue-content">
+                                <div class="issue-title">${issue.motor} → ${issue.slot}: ${issue.pin}</div>
+                                <div class="issue-detail">
+                                    Expected <strong>${issue.expected}</strong>, found <strong>${issue.found}</strong>
+                                </div>
+                                <div class="issue-fix">Fix: ${issue.fix}</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="issue-item warning">
+                            <span class="issue-icon">⚠️</span>
+                            <div class="issue-content">
+                                <div class="issue-title">${issue.motor}</div>
+                                <div class="issue-detail">${issue.message}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            issuesList.innerHTML = html;
+        }
+
+        function renderComparisonTable(board, motors, slotMap) {
+            const container = document.getElementById('tableContainer');
+
+            if (motors.length === 0) {
+                container.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>No motors configured</p></div>`;
+                return;
+            }
+
+            let html = `
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Motor</th>
+                            <th>Slot</th>
+                            <th>Pin</th>
+                            <th>Your Config</th>
+                            <th>Board Pin</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            for (const motor of motors) {
+                let matchedSlot = null;
+                let slotIdx = -1;
+                for (let i = 0; i < board.drivers.length; i++) {
+                    if (normalizePin(board.drivers[i].step) === motor.stepPin) {
+                        matchedSlot = board.drivers[i];
+                        slotIdx = i;
+                        break;
+                    }
+                }
+
+                const pins = [
+                    { type: 'step', label: 'STEP', config: motor.stepPin, expected: matchedSlot?.step },
+                    { type: 'dir', label: 'DIR', config: motor.dirPin, expected: matchedSlot?.dir },
+                    { type: 'enable', label: 'ENABLE', config: motor.enablePin, expected: matchedSlot?.enable }
+                ];
+
+                if (motor.driverConfig.uartPin) {
+                    pins.push({ type: 'uart', label: 'UART', config: motor.driverConfig.uartPin, expected: matchedSlot?.uart });
+                }
+                if (motor.driverConfig.csPin) {
+                    pins.push({ type: 'cs', label: 'CS', config: motor.driverConfig.csPin, expected: matchedSlot?.cs });
+                }
+
+                for (let i = 0; i < pins.length; i++) {
+                    const pin = pins[i];
+                    const isMatch = pin.expected && normalizePin(pin.expected) === pin.config;
+                    const rowClass = pin.expected && !isMatch ? 'mismatch-row' : '';
+
+                    html += `
+                        <tr class="${rowClass}">
+                            ${i === 0 ? `<td rowspan="${pins.length}" style="color: ${AXIS_COLORS[motor.axis]}; font-weight: 600;">${motor.name}</td>` : ''}
+                            ${i === 0 ? `<td rowspan="${pins.length}">${matchedSlot ? matchedSlot.id : '—'}</td>` : ''}
+                            <td><span class="pin-badge ${pin.type}">${pin.label}</span></td>
+                            <td style="font-weight: 500;">${pin.config || '—'}</td>
+                            <td>${pin.expected || '—'}</td>
+                            <td>
+                                ${pin.expected ? `
+                                    <span class="status-chip ${isMatch ? 'match' : 'mismatch'}">
+                                        ${isMatch ? '✓ Match' : '✗ Mismatch'}
+                                    </span>
+                                ` : '—'}
+                            </td>
+                        </tr>
+                    `;
+                }
+            }
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function updateStats(motors, slotMap, issues) {
+            const statsCard = document.getElementById('statsCard');
+            const statsRow = document.getElementById('statsRow');
+
+            const axisCounts = { x: 0, y: 0, z: 0, e: 0 };
+            motors.forEach(m => axisCounts[m.axis]++);
+
+            const usedSlots = slotMap.filter(s => s !== null).length;
+            const matchCount = motors.length * 3 - issues.filter(i => i.type === 'mismatch').length; // rough estimate
+
+            statsRow.innerHTML = `
+                <div class="stat-chip"><span class="value" style="color: var(--accent-blue);">${motors.length}</span> Motors</div>
+                <div class="stat-chip"><span class="value">${usedSlots}/8</span> Slots</div>
+                <div class="stat-chip"><span class="value" style="color: var(--accent-cyan);">${axisCounts.x}</span> X</div>
+                <div class="stat-chip"><span class="value" style="color: var(--accent-pink);">${axisCounts.y}</span> Y</div>
+                <div class="stat-chip"><span class="value" style="color: var(--accent-green);">${axisCounts.z}</span> Z</div>
+                <div class="stat-chip"><span class="value" style="color: var(--accent-orange);">${axisCounts.e}</span> E</div>
+                <div class="stat-chip"><span class="value" style="color: ${issues.length > 0 ? 'var(--accent-red)' : 'var(--accent-green)'};">${issues.length}</span> Issues</div>
+            `;
+
+            statsCard.style.display = 'block';
+        }
+
+        function parseConfig() {
+            const text = document.getElementById('configInput').value;
+            if (!text.trim()) {
+                alert('Please paste a configuration first.');
+                return;
+            }
+
+            const sections = parseKlipperConfig(text);
+            const motors = extractMotors(sections);
+
+            if (motors.length === 0) {
+                alert('No stepper motors found in configuration.');
+                return;
+            }
+
+            const boardSelect = document.getElementById('boardSelect');
+            let boardId = boardSelect.value;
+            let confidence = 1;
+
+            if (boardId === 'auto') {
+                const detection = detectBoard(sections);
+                if (detection.boardId && detection.confidence > 0.3) {
+                    boardId = detection.boardId;
+                    confidence = detection.confidence;
+                    boardSelect.value = boardId;
+
+                    document.getElementById('detectedBadge').style.display = 'inline-flex';
+                    document.getElementById('detectedText').textContent = `Detected: ${BOARDS[boardId].name}`;
+                } else {
+                    alert('Could not detect board. Please select manually.');
+                    return;
+                }
+            }
+
+            currentBoard = BOARDS[boardId];
+            parsedConfig = { sections, motors };
+
+            const { slotMap, issues } = mapMotorsToSlots(motors, currentBoard);
+
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('boardViz').style.display = 'block';
+            document.getElementById('vizTitle').innerHTML = `🖥️ ${currentBoard.name}`;
+
+            renderBoardViz(currentBoard, slotMap, issues);
+            renderIssues(issues, currentBoard);
+            renderComparisonTable(currentBoard, motors, slotMap);
+            updateStats(motors, slotMap, issues);
+        }
+
+        function onBoardChange() {
+            document.getElementById('detectedBadge').style.display = 'none';
+
+            if (parsedConfig && document.getElementById('boardSelect').value !== 'auto') {
+                currentBoard = BOARDS[document.getElementById('boardSelect').value];
+                const { slotMap, issues } = mapMotorsToSlots(parsedConfig.motors, currentBoard);
+
+                document.getElementById('vizTitle').innerHTML = `🖥️ ${currentBoard.name}`;
+                renderBoardViz(currentBoard, slotMap, issues);
+                renderIssues(issues, currentBoard);
+                renderComparisonTable(currentBoard, parsedConfig.motors, slotMap);
+                updateStats(parsedConfig.motors, slotMap, issues);
+            }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(tabId + 'Tab').classList.add('active');
+        }
+
+        function loadExample() {
+            // Example uses Octopus Pro v1.1 pinout (PA2 for enable on driver 3)
+            document.getElementById('configInput').value = ``;
+            parseConfig();
+        }
+
+        function clearAll() {
+            document.getElementById('configInput').value = '';
+            document.getElementById('emptyState').style.display = 'flex';
+            document.getElementById('boardViz').style.display = 'none';
+            document.getElementById('statsCard').style.display = 'none';
+            document.getElementById('issuesCard').style.display = 'none';
+            document.getElementById('boardSelect').value = 'auto';
+            document.getElementById('detectedBadge').style.display = 'none';
+            document.getElementById('tableContainer').innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>No data</p></div>`;
+            currentBoard = null;
+            parsedConfig = null;
+        }
+    </script>
+</body>
+</html>

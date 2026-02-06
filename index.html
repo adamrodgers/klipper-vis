@@ -16,6 +16,7 @@
             --success: #5cdbab;
             --warning: #e5c07b;
             --error: #e06c75;
+            --info: #61afef;
             --text-primary: #d4d7dd;
             --text-secondary: #878c96;
             --text-muted: #4d525c;
@@ -50,12 +51,7 @@
             gap: 1rem;
         }
 
-        h1 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
+        h1 { font-size: 1.25rem; font-weight: 600; color: var(--text-primary); }
         .subtitle { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem; }
 
         .board-selector {
@@ -160,7 +156,6 @@
         .btn-row { display: flex; gap: 0.5rem; margin-top: 0.65rem; }
 
         button {
-            flex: 1;
             padding: 0.55rem 0.85rem;
             border: none;
             border-radius: 4px;
@@ -171,14 +166,27 @@
             transition: all 0.15s;
         }
 
-        .btn-primary { background: var(--accent); color: var(--bg-primary); }
+        .btn-primary { background: var(--accent); color: var(--bg-primary); flex: 1; }
         .btn-primary:hover { background: #7ae5c0; }
         .btn-secondary {
             background: var(--bg-tertiary);
             color: var(--text-secondary);
             border: 1px solid var(--border-color);
+            flex: 1;
         }
         .btn-secondary:hover { background: var(--border-color); color: var(--text-primary); }
+        .btn-small {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.6rem;
+            flex: none;
+        }
+        .btn-copy {
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+        }
+        .btn-copy:hover { color: var(--accent); border-color: var(--accent); }
+        .btn-copy.copied { color: var(--success); border-color: var(--success); }
 
         .board-container {
             background: var(--bg-card);
@@ -236,11 +244,17 @@
             background: rgba(219, 107, 92, 0.05);
         }
 
+        .driver-slot.external-mcu {
+            border-color: var(--info);
+            background: rgba(97, 175, 239, 0.05);
+        }
+
         .slot-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin-bottom: 0.3rem;
+            gap: 0.25rem;
         }
 
         .slot-id { font-size: 0.6rem; color: var(--text-muted); }
@@ -253,10 +267,20 @@
             color: var(--warning);
         }
 
+        .slot-current {
+            font-size: 0.5rem;
+            padding: 0.1rem 0.25rem;
+            background: var(--bg-primary);
+            border-radius: 2px;
+            color: var(--text-muted);
+        }
+
+        .slot-current.high { color: var(--error); }
+
         .slot-motor {
             font-size: 0.8rem;
             font-weight: 600;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.15rem;
             color: var(--text-primary);
         }
 
@@ -264,6 +288,15 @@
             color: var(--text-muted);
             font-weight: 400;
             font-size: 0.65rem;
+        }
+
+        .slot-motor-info {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .slot-pins {
@@ -297,7 +330,7 @@
         .pin-status.warn { background: var(--error); }
 
         .issues-list {
-            max-height: 180px;
+            max-height: 250px;
             overflow-y: auto;
         }
 
@@ -310,8 +343,14 @@
             font-size: 0.68rem;
         }
 
-        .issue-item.warning {
-            border-left-color: var(--warning);
+        .issue-item.warning { border-left-color: var(--warning); }
+        .issue-item.info { border-left-color: var(--info); }
+
+        .issue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.5rem;
         }
 
         .issue-title {
@@ -320,9 +359,7 @@
             margin-bottom: 0.1rem;
         }
 
-        .issue-detail {
-            color: var(--text-secondary);
-        }
+        .issue-detail { color: var(--text-secondary); }
 
         .issue-fix {
             margin-top: 0.3rem;
@@ -332,7 +369,13 @@
             font-family: 'SF Mono', Consolas, monospace;
             font-size: 0.7rem;
             color: var(--accent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
         }
+
+        .issue-fix code { flex: 1; }
 
         .comparison-table {
             width: 100%;
@@ -360,10 +403,7 @@
         }
 
         .comparison-table tr:hover td { background: var(--bg-tertiary); }
-
-        .comparison-table tr.mismatch-row td {
-            background: rgba(219, 107, 92, 0.06);
-        }
+        .comparison-table tr.mismatch-row td { background: rgba(219, 107, 92, 0.06); }
 
         .pin-badge {
             display: inline-block;
@@ -375,11 +415,7 @@
             color: var(--text-secondary);
         }
 
-        .status-chip {
-            font-size: 0.6rem;
-            font-weight: 500;
-        }
-
+        .status-chip { font-size: 0.6rem; font-weight: 500; }
         .status-chip.match { color: var(--success); }
         .status-chip.mismatch { color: var(--error); }
 
@@ -400,10 +436,9 @@
             color: var(--text-secondary);
         }
 
-        .stat-chip .value {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
+        .stat-chip .value { font-weight: 600; color: var(--text-primary); }
+        .stat-chip.awd { background: rgba(97, 175, 239, 0.1); color: var(--info); }
+        .stat-chip.awd .value { color: var(--info); }
 
         .tabs {
             display: flex;
@@ -442,9 +477,7 @@
             overflow-y: auto;
         }
 
-        .detection-debug {
-            font-size: 0.63rem;
-        }
+        .detection-debug { font-size: 0.63rem; }
 
         .detection-score {
             display: flex;
@@ -473,6 +506,83 @@
             color: var(--accent);
             font-size: 0.7rem;
         }
+
+        .mcu-section {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .mcu-section-label {
+            font-size: 0.65rem;
+            color: var(--info);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .mcu-section-label::before {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        .mcu-section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        .external-motors {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .export-section {
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .export-textarea {
+            width: 100%;
+            height: 150px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.5rem;
+            color: var(--accent);
+            font-family: 'SF Mono', Consolas, monospace;
+            font-size: 0.65rem;
+            resize: vertical;
+            margin-top: 0.5rem;
+        }
+
+        .endstop-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            margin-top: 0.5rem;
+        }
+
+        .endstop-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.3rem 0.4rem;
+            background: var(--bg-primary);
+            border-radius: 3px;
+            font-size: 0.65rem;
+        }
+
+        .endstop-item .motor { color: var(--text-primary); }
+        .endstop-item .type { color: var(--text-muted); }
+        .endstop-item .type.sensorless { color: var(--info); }
+        .endstop-item .type.probe { color: var(--accent); }
+        .endstop-item .type.physical { color: var(--warning); }
 
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: var(--bg-tertiary); }
@@ -543,6 +653,10 @@
                     </div>
                     <div class="card-body">
                         <div class="issues-list" id="issuesList"></div>
+                        <div class="export-section" id="exportSection" style="display: none;">
+                            <button class="btn-secondary btn-small" onclick="toggleExport()">Export Fixes</button>
+                            <textarea class="export-textarea" id="exportTextarea" style="display: none;" readonly></textarea>
+                        </div>
                     </div>
                 </div>
 
@@ -552,6 +666,7 @@
                     </div>
                     <div class="card-body">
                         <div class="stats-row" id="statsRow"></div>
+                        <div class="endstop-list" id="endstopList"></div>
                     </div>
                 </div>
             </div>
@@ -590,6 +705,30 @@
     </div>
 
     <script>
+        // Typical sense resistor values by driver type
+        const SENSE_RESISTORS = {
+            'TMC2209': 0.110,
+            'TMC2226': 0.110,
+            'TMC2208': 0.110,
+            'TMC2225': 0.110,
+            'TMC5160': 0.075,
+            'TMC5161': 0.075,
+            'TMC2130': 0.110,
+            'TMC2160': 0.075,
+        };
+
+        // Max recommended current by driver
+        const MAX_CURRENT = {
+            'TMC2209': 2.0,
+            'TMC2226': 2.0,
+            'TMC2208': 1.4,
+            'TMC2225': 1.4,
+            'TMC5160': 3.0,
+            'TMC5161': 3.0,
+            'TMC2130': 1.2,
+            'TMC2160': 2.5,
+        };
+
         const BOARDS = {
             'octopus_pro_v1.0': {
                 name: 'BTT Octopus Pro v1.0',
@@ -606,11 +745,7 @@
                     { id: 'DRIVER7', step: 'PE6', dir: 'PA14', enable: 'PE0', uart: 'PD3', cs: 'PD3', diag: 'PG15' }
                 ],
                 signaturePins: ['PF13', 'PF11', 'PF9', 'PG0', 'PG4', 'PC13'],
-                excludePins: [],
-                requiredCombos: [
-                    { step: 'PF13', dir: 'PF12' },
-                    { step: 'PF11', dir: 'PG3' },
-                ],
+                requiredCombos: [{ step: 'PF13', dir: 'PF12' }, { step: 'PF11', dir: 'PG3' }],
             },
             'octopus_pro_v1.1': {
                 name: 'BTT Octopus Pro v1.1',
@@ -627,11 +762,7 @@
                     { id: 'DRIVER7', step: 'PE6', dir: 'PA14', enable: 'PE0', uart: 'PD3', cs: 'PD3', diag: 'PG15' }
                 ],
                 signaturePins: ['PF13', 'PF11', 'PF9', 'PG0', 'PG4', 'PC13'],
-                excludePins: [],
-                requiredCombos: [
-                    { step: 'PF13', dir: 'PF12' },
-                    { step: 'PF11', dir: 'PG3' },
-                ],
+                requiredCombos: [{ step: 'PF13', dir: 'PF12' }, { step: 'PF11', dir: 'PG3' }],
             },
             'octopus_v1.1': {
                 name: 'BTT Octopus v1.1',
@@ -648,10 +779,7 @@
                     { id: 'DRIVER7', step: 'PE6', dir: 'PA14', enable: 'PE0', uart: 'PD3', diag: 'PG15' }
                 ],
                 signaturePins: ['PF13', 'PF11', 'PF9'],
-                excludePins: [],
-                requiredCombos: [
-                    { step: 'PF13', dir: 'PF12' },
-                ],
+                requiredCombos: [{ step: 'PF13', dir: 'PF12' }],
             },
             'kraken': {
                 name: 'BTT Kraken',
@@ -668,13 +796,9 @@
                     { id: 'M8', step: 'PG15', dir: 'PB6', enable: 'PG14', uart: 'PA10', cs: 'PA10', diag: 'PC0' }
                 ],
                 signaturePins: ['PC14', 'PE5', 'PB9', 'PG9', 'PG11', 'PB4', 'PG15'],
-                excludePins: [],
                 requiredCombos: [
-                    { step: 'PC14', dir: 'PC13' },
-                    { step: 'PE5', dir: 'PE4' },
-                    { step: 'PB9', dir: 'PB8' },
-                    { step: 'PG9', dir: 'PG10' },
-                    { step: 'PG11', dir: 'PD7' },
+                    { step: 'PC14', dir: 'PC13' }, { step: 'PE5', dir: 'PE4' },
+                    { step: 'PB9', dir: 'PB8' }, { step: 'PG9', dir: 'PG10' }, { step: 'PG11', dir: 'PD7' }
                 ],
                 uniqueIdentifiers: ['PC14', 'PE5', 'PB9'],
             },
@@ -694,10 +818,7 @@
                 ],
                 signaturePins: ['PF12', 'PD7', 'PC9', 'PD11', 'PD8'],
                 excludePins: ['PC14', 'PE5', 'PB9'],
-                requiredCombos: [
-                    { step: 'PF12', dir: 'PF11' },
-                    { step: 'PC9', dir: 'PC8' },
-                ],
+                requiredCombos: [{ step: 'PF12', dir: 'PF11' }, { step: 'PC9', dir: 'PC8' }],
                 uniqueIdentifiers: ['PF12', 'PC9', 'PD11', 'PD8'],
             },
             'manta_m8p_v2': {
@@ -716,10 +837,7 @@
                 ],
                 signaturePins: ['PG13', 'PD4', 'PC7'],
                 excludePins: ['PC14', 'PE5', 'PB9'],
-                requiredCombos: [
-                    { step: 'PE6', dir: 'PE5' },
-                    { step: 'PG13', dir: 'PG12' },
-                ],
+                requiredCombos: [{ step: 'PE6', dir: 'PE5' }, { step: 'PG13', dir: 'PG12' }],
                 uniqueIdentifiers: ['PG13', 'PD4', 'PC7'],
             }
         };
@@ -727,12 +845,36 @@
         let currentBoard = null;
         let parsedConfig = null;
         let lastDetectionResults = null;
+        let currentIssues = [];
 
         function normalizePin(pin) {
             if (!pin) return null;
-            pin = pin.replace(/^!/, '').replace(/^\^/, '').trim().toUpperCase();
-            pin = pin.replace(/[._]/g, '');
-            return pin;
+            return pin.replace(/^[!^]+/, '').replace(/[!^]+$/, '').trim().toUpperCase().replace(/[._]/g, '');
+        }
+
+        function getModifiers(pin) {
+            if (!pin) return '';
+            let mods = '';
+            if (pin.includes('!')) mods += '!';
+            if (pin.includes('^')) mods += '^';
+            return mods;
+        }
+
+        function formatPinWithMods(pin) {
+            if (!pin) return null;
+            const mods = getModifiers(pin);
+            const normalized = normalizePin(pin);
+            return mods + normalized;
+        }
+
+        function isExternalMcu(pin) {
+            if (!pin) return false;
+            return pin.includes(':');
+        }
+
+        function getMcuName(pin) {
+            if (!pin || !pin.includes(':')) return 'mcu';
+            return pin.split(':')[0].trim();
         }
 
         function parseKlipperConfig(text) {
@@ -785,27 +927,90 @@
                 const uartPin = normalizePin(cfg.uart_pin);
                 const csPin = normalizePin(cfg.cs_pin);
 
-                if (stepPin) { info.stepPins.add(stepPin); info.allPins.add(stepPin); }
-                if (dirPin) { info.dirPins.add(dirPin); info.allPins.add(dirPin); }
-                if (enablePin) { info.enablePins.add(enablePin); info.allPins.add(enablePin); }
-                if (uartPin) { info.uartPins.add(uartPin); info.allPins.add(uartPin); }
-                if (csPin) { info.csPins.add(csPin); info.allPins.add(csPin); }
+                // Skip external MCU pins for board detection
+                if (stepPin && !isExternalMcu(cfg.step_pin)) {
+                    info.stepPins.add(stepPin);
+                    info.allPins.add(stepPin);
+                }
+                if (dirPin && !isExternalMcu(cfg.dir_pin)) {
+                    info.dirPins.add(dirPin);
+                    info.allPins.add(dirPin);
+                }
+                if (enablePin && !isExternalMcu(cfg.enable_pin)) {
+                    info.enablePins.add(enablePin);
+                    info.allPins.add(enablePin);
+                }
+                if (uartPin && !isExternalMcu(cfg.uart_pin)) {
+                    info.uartPins.add(uartPin);
+                    info.allPins.add(uartPin);
+                }
+                if (csPin && !isExternalMcu(cfg.cs_pin)) {
+                    info.csPins.add(csPin);
+                    info.allPins.add(csPin);
+                }
 
-                if (stepPin && dirPin) {
+                if (stepPin && dirPin && !isExternalMcu(cfg.step_pin)) {
                     info.stepDirCombos.push({ step: stepPin, dir: dirPin });
                 }
             }
             return info;
         }
 
+        function extractAutotuneInfo(sections) {
+            const autotune = {};
+            for (const [name, cfg] of Object.entries(sections)) {
+                const match = name.match(/^autotune_tmc\s+(.+)$/);
+                if (match) {
+                    const motorName = match[1];
+                    autotune[motorName] = {
+                        motor: cfg.motor || null,
+                        tuningGoal: cfg.tuning_goal || null
+                    };
+                }
+            }
+            return autotune;
+        }
+
+        function extractSpiInfo(sections) {
+            const spiPins = {};
+            for (const [name, cfg] of Object.entries(sections)) {
+                if (name.startsWith('tmc')) {
+                    const sclk = cfg.spi_software_sclk_pin;
+                    const mosi = cfg.spi_software_mosi_pin;
+                    const miso = cfg.spi_software_miso_pin;
+                    if (sclk || mosi || miso) {
+                        spiPins[name] = { sclk, mosi, miso };
+                    }
+                }
+            }
+            return spiPins;
+        }
+
         function detectBoard(sections) {
             const pinInfo = extractPinInfo(sections);
             const results = [];
 
+            let octopusProVersion = null;
+            if (pinInfo.enablePins.has('PA2') && !pinInfo.enablePins.has('PA0')) {
+                octopusProVersion = 'v1.1';
+            } else if (pinInfo.enablePins.has('PA0') && !pinInfo.enablePins.has('PA2')) {
+                octopusProVersion = 'v1.0';
+            }
+
             for (const [boardId, board] of Object.entries(BOARDS)) {
                 let score = 0;
                 let maxScore = 0;
-                let details = [];
+
+                if (octopusProVersion) {
+                    if (boardId === 'octopus_pro_v1.0' && octopusProVersion === 'v1.1') {
+                        results.push({ boardId, score: 0, maxScore: 100, excluded: true });
+                        continue;
+                    }
+                    if (boardId === 'octopus_pro_v1.1' && octopusProVersion === 'v1.0') {
+                        results.push({ boardId, score: 0, maxScore: 100, excluded: true });
+                        continue;
+                    }
+                }
 
                 if (board.excludePins) {
                     let hasExcluded = false;
@@ -816,7 +1021,7 @@
                         }
                     }
                     if (hasExcluded) {
-                        results.push({ boardId, score: 0, maxScore: 100, details, excluded: true });
+                        results.push({ boardId, score: 0, maxScore: 100, excluded: true });
                         continue;
                     }
                 }
@@ -867,7 +1072,7 @@
                 maxScore += 20;
 
                 const finalScore = maxScore > 0 ? (score / maxScore) * 100 : 0;
-                results.push({ boardId, score: finalScore, maxScore: 100, details });
+                results.push({ boardId, score: finalScore, maxScore: 100 });
             }
 
             results.sort((a, b) => b.score - a.score);
@@ -899,6 +1104,9 @@
 
         function extractMotors(sections) {
             const motors = [];
+            const autotune = extractAutotuneInfo(sections);
+            const spiInfo = extractSpiInfo(sections);
+
             for (const [name, cfg] of Object.entries(sections)) {
                 const stepperMatch = name.match(/^stepper_([xyz])(\d*)$/) || name.match(/^(extruder)(\d*)$/);
                 if (stepperMatch) {
@@ -906,37 +1114,63 @@
                     let num = stepperMatch[2] || '';
                     if (axis === 'extruder') axis = 'e';
 
+                    const isExternal = isExternalMcu(cfg.step_pin);
+                    const mcuName = getMcuName(cfg.step_pin);
+
                     const motor = {
                         name, axis, num,
                         stepPin: normalizePin(cfg.step_pin),
                         dirPin: normalizePin(cfg.dir_pin),
                         enablePin: normalizePin(cfg.enable_pin),
+                        stepPinRaw: formatPinWithMods(cfg.step_pin),
+                        dirPinRaw: formatPinWithMods(cfg.dir_pin),
+                        enablePinRaw: formatPinWithMods(cfg.enable_pin),
+                        endstopPin: cfg.endstop_pin || null,
+                        isExternal,
+                        mcuName,
                         driver: null,
-                        driverConfig: {}
+                        driverConfig: {},
+                        autotuneMotor: autotune[name]?.motor || null,
+                        autotuneTuning: autotune[name]?.tuningGoal || null,
                     };
 
+                    // Find matching TMC config
                     for (const [drvName, drvCfg] of Object.entries(sections)) {
                         if (drvName.match(/^tmc\d+/) && drvName.includes(name)) {
-                            motor.driver = drvName.split(' ')[0].toUpperCase();
+                            const driverType = drvName.split(' ')[0].toUpperCase();
+                            motor.driver = driverType;
                             motor.driverConfig = {
                                 uartPin: normalizePin(drvCfg.uart_pin),
                                 csPin: normalizePin(drvCfg.cs_pin),
-                                runCurrent: drvCfg.run_current
+                                uartPinRaw: formatPinWithMods(drvCfg.uart_pin),
+                                csPinRaw: formatPinWithMods(drvCfg.cs_pin),
+                                runCurrent: parseFloat(drvCfg.run_current) || null,
+                                senseResistor: parseFloat(drvCfg.sense_resistor) || null,
+                                spiPins: spiInfo[drvName] || null,
                             };
                             break;
                         }
                     }
+
                     motors.push(motor);
                 }
             }
+
             return motors;
         }
 
         function mapMotorsToSlots(motors, board) {
             const slotMap = new Array(board.driverCount).fill(null);
             const issues = [];
+            const externalMotors = [];
 
             for (const motor of motors) {
+                // Handle external MCU motors separately
+                if (motor.isExternal) {
+                    externalMotors.push(motor);
+                    continue;
+                }
+
                 let matched = false;
                 for (let i = 0; i < board.drivers.length; i++) {
                     const slot = board.drivers[i];
@@ -944,29 +1178,123 @@
                         slotMap[i] = motor;
                         matched = true;
 
+                        // Pin mismatch checks
                         if (motor.dirPin && normalizePin(slot.dir) !== motor.dirPin) {
-                            issues.push({ type: 'mismatch', motor: motor.name, slot: slot.id, pin: 'dir_pin', expected: slot.dir, found: motor.dirPin, fix: `dir_pin: ${slot.dir}` });
+                            issues.push({
+                                type: 'mismatch', motor: motor.name, slot: slot.id, pin: 'dir_pin',
+                                expected: slot.dir, found: motor.dirPinRaw,
+                                fix: `dir_pin: ${slot.dir}`
+                            });
                         }
                         if (motor.enablePin && normalizePin(slot.enable) !== motor.enablePin) {
-                            issues.push({ type: 'mismatch', motor: motor.name, slot: slot.id, pin: 'enable_pin', expected: slot.enable, found: motor.enablePin, fix: `enable_pin: !${slot.enable}` });
+                            issues.push({
+                                type: 'mismatch', motor: motor.name, slot: slot.id, pin: 'enable_pin',
+                                expected: slot.enable, found: motor.enablePinRaw,
+                                fix: `enable_pin: !${slot.enable}`
+                            });
                         }
                         if (motor.driverConfig.uartPin && slot.uart && normalizePin(slot.uart) !== motor.driverConfig.uartPin) {
-                            issues.push({ type: 'mismatch', motor: motor.name, slot: slot.id, pin: 'uart_pin', expected: slot.uart, found: motor.driverConfig.uartPin, fix: `uart_pin: ${slot.uart}` });
+                            issues.push({
+                                type: 'mismatch', motor: motor.name, slot: slot.id, pin: 'uart_pin',
+                                expected: slot.uart, found: motor.driverConfig.uartPinRaw,
+                                fix: `uart_pin: ${slot.uart}`
+                            });
                         }
                         if (motor.driverConfig.csPin && slot.cs && normalizePin(slot.cs) !== motor.driverConfig.csPin) {
-                            issues.push({ type: 'mismatch', motor: motor.name, slot: slot.id, pin: 'cs_pin', expected: slot.cs, found: motor.driverConfig.csPin, fix: `cs_pin: ${slot.cs}` });
+                            issues.push({
+                                type: 'mismatch', motor: motor.name, slot: slot.id, pin: 'cs_pin',
+                                expected: slot.cs, found: motor.driverConfig.csPinRaw,
+                                fix: `cs_pin: ${slot.cs}`
+                            });
                         }
+
+                        // Sense resistor check
+                        if (motor.driver && motor.driverConfig.senseResistor) {
+                            const expected = SENSE_RESISTORS[motor.driver];
+                            if (expected && Math.abs(motor.driverConfig.senseResistor - expected) > 0.01) {
+                                issues.push({
+                                    type: 'warning', motor: motor.name,
+                                    message: `Sense resistor ${motor.driverConfig.senseResistor}Ω unusual for ${motor.driver} (typical: ${expected}Ω)`
+                                });
+                            }
+                        }
+
+                        // Current check
+                        if (motor.driver && motor.driverConfig.runCurrent) {
+                            const maxCurrent = MAX_CURRENT[motor.driver];
+                            if (maxCurrent && motor.driverConfig.runCurrent > maxCurrent) {
+                                issues.push({
+                                    type: 'warning', motor: motor.name,
+                                    message: `Run current ${motor.driverConfig.runCurrent}A exceeds ${motor.driver} max (${maxCurrent}A)`
+                                });
+                            }
+                        }
+
+                        // TMC driver type validation (UART vs SPI)
+                        if (motor.driver) {
+                            const usesUart = ['TMC2209', 'TMC2208', 'TMC2225', 'TMC2226'].includes(motor.driver);
+                            const usesSpi = ['TMC5160', 'TMC5161', 'TMC2130', 'TMC2160'].includes(motor.driver);
+
+                            if (usesUart && motor.driverConfig.csPin && !motor.driverConfig.uartPin) {
+                                issues.push({
+                                    type: 'warning', motor: motor.name,
+                                    message: `${motor.driver} uses UART, but cs_pin found instead of uart_pin`
+                                });
+                            }
+                            if (usesSpi && motor.driverConfig.uartPin && !motor.driverConfig.csPin) {
+                                issues.push({
+                                    type: 'warning', motor: motor.name,
+                                    message: `${motor.driver} uses SPI, but uart_pin found instead of cs_pin`
+                                });
+                            }
+                        }
+
                         break;
                     }
                 }
+
                 if (!matched) {
-                    issues.push({ type: 'warning', motor: motor.name, pin: 'step_pin', found: motor.stepPin, message: `Step pin ${motor.stepPin} doesn't match any driver slot` });
+                    issues.push({
+                        type: 'warning', motor: motor.name, pin: 'step_pin', found: motor.stepPinRaw,
+                        message: `Step pin ${motor.stepPinRaw} doesn't match any driver slot`
+                    });
                 }
             }
-            return { slotMap, issues };
+
+            // SPI bus consistency check
+            const spiConfigs = motors
+                .filter(m => m.driverConfig.spiPins)
+                .map(m => ({ motor: m.name, ...m.driverConfig.spiPins }));
+
+            if (spiConfigs.length > 1) {
+                const first = spiConfigs[0];
+                for (let i = 1; i < spiConfigs.length; i++) {
+                    const curr = spiConfigs[i];
+                    if (curr.sclk !== first.sclk || curr.mosi !== first.mosi || curr.miso !== first.miso) {
+                        issues.push({
+                            type: 'info', motor: curr.motor,
+                            message: `SPI pins differ from ${first.motor} - verify this is intentional`
+                        });
+                        break;
+                    }
+                }
+            }
+
+            return { slotMap, issues, externalMotors };
         }
 
-        function renderBoardViz(board, slotMap, issues) {
+        function copyToClipboard(text, btn) {
+            navigator.clipboard.writeText(text).then(() => {
+                btn.classList.add('copied');
+                btn.textContent = 'Copied';
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.textContent = 'Copy';
+                }, 1500);
+            });
+        }
+
+        function renderBoardViz(board, slotMap, issues, externalMotors) {
             const boardViz = document.getElementById('boardViz');
             const issueSlots = new Set(issues.filter(i => i.type === 'mismatch').map(i => i.slot));
 
@@ -985,40 +1313,110 @@
                     return normalizePin(expectedPin) === configPin ? 'ok' : 'warn';
                 };
 
+                const displayStep = motor ? motor.stepPinRaw : slot.step;
+                const displayDir = motor ? motor.dirPinRaw : slot.dir;
+                const displayEn = motor ? motor.enablePinRaw : slot.enable;
+                const displayCs = motor?.driverConfig ? (motor.driverConfig.csPinRaw || motor.driverConfig.uartPinRaw) : (slot.cs || slot.uart);
+
+                // Current display
+                let currentHtml = '';
+                if (motor?.driverConfig?.runCurrent) {
+                    const maxCurr = motor.driver ? MAX_CURRENT[motor.driver] : null;
+                    const isHigh = maxCurr && motor.driverConfig.runCurrent > maxCurr * 0.9;
+                    currentHtml = `<span class="slot-current ${isHigh ? 'high' : ''}">${motor.driverConfig.runCurrent}A</span>`;
+                }
+
+                // Motor info from autotune
+                let motorInfoHtml = '';
+                if (motor?.autotuneMotor) {
+                    motorInfoHtml = `<div class="slot-motor-info" title="${motor.autotuneMotor}">${motor.autotuneMotor}</div>`;
+                }
+
                 html += `<div class="driver-slot ${isActive ? 'active' : ''} ${hasIssue ? 'has-issue' : ''}">
                     <div class="slot-header">
                         <span class="slot-id">${slot.id}</span>
                         ${motor?.driver ? `<span class="slot-driver">${motor.driver}</span>` : ''}
+                        ${currentHtml}
                     </div>
-                    <div class="slot-motor ${motor ? '' : 'empty'}">
-                        ${motor ? motor.name : 'Empty'}
-                    </div>
+                    <div class="slot-motor ${motor ? '' : 'empty'}">${motor ? motor.name : 'Empty'}</div>
+                    ${motorInfoHtml}
                     <div class="slot-pins">
                         <div class="pin-item">
                             <span class="pin-label">STEP</span>
-                            <span class="pin-value">${slot.step}</span>
+                            <span class="pin-value">${displayStep}</span>
                             ${motor ? `<span class="pin-status ${checkPin(motor.stepPin, slot.step)}"></span>` : ''}
                         </div>
                         <div class="pin-item">
                             <span class="pin-label">DIR</span>
-                            <span class="pin-value">${slot.dir}</span>
+                            <span class="pin-value">${displayDir}</span>
                             ${motor ? `<span class="pin-status ${checkPin(motor.dirPin, slot.dir)}"></span>` : ''}
                         </div>
                         <div class="pin-item">
                             <span class="pin-label">EN</span>
-                            <span class="pin-value">${slot.enable}</span>
+                            <span class="pin-value">${displayEn}</span>
                             ${motor ? `<span class="pin-status ${checkPin(motor.enablePin, slot.enable)}"></span>` : ''}
                         </div>
                         <div class="pin-item">
                             <span class="pin-label">${slot.cs ? 'CS' : 'UART'}</span>
-                            <span class="pin-value">${slot.cs || slot.uart}</span>
+                            <span class="pin-value">${displayCs}</span>
                             ${motor?.driverConfig ? `<span class="pin-status ${checkPin(motor.driverConfig.csPin || motor.driverConfig.uartPin, slot.cs || slot.uart)}"></span>` : ''}
                         </div>
                     </div>
                 </div>`;
             }
 
-            html += '</div></div>';
+            html += '</div>';
+
+            // External MCU motors section
+            if (externalMotors.length > 0) {
+                const mcuGroups = {};
+                for (const motor of externalMotors) {
+                    if (!mcuGroups[motor.mcuName]) mcuGroups[motor.mcuName] = [];
+                    mcuGroups[motor.mcuName].push(motor);
+                }
+
+                for (const [mcuName, mcuMotors] of Object.entries(mcuGroups)) {
+                    html += `<div class="mcu-section">
+                        <div class="mcu-section-label">${mcuName}</div>
+                        <div class="external-motors">`;
+
+                    for (const motor of mcuMotors) {
+                        let currentHtml = '';
+                        if (motor.driverConfig?.runCurrent) {
+                            currentHtml = `<span class="slot-current">${motor.driverConfig.runCurrent}A</span>`;
+                        }
+
+                        let motorInfoHtml = '';
+                        if (motor.autotuneMotor) {
+                            motorInfoHtml = `<div class="slot-motor-info">${motor.autotuneMotor}</div>`;
+                        }
+
+                        html += `<div class="driver-slot active external-mcu">
+                            <div class="slot-header">
+                                <span class="slot-id">EXT</span>
+                                ${motor.driver ? `<span class="slot-driver">${motor.driver}</span>` : ''}
+                                ${currentHtml}
+                            </div>
+                            <div class="slot-motor">${motor.name}</div>
+                            ${motorInfoHtml}
+                            <div class="slot-pins">
+                                <div class="pin-item">
+                                    <span class="pin-label">STEP</span>
+                                    <span class="pin-value">${motor.stepPinRaw}</span>
+                                </div>
+                                <div class="pin-item">
+                                    <span class="pin-label">DIR</span>
+                                    <span class="pin-value">${motor.dirPinRaw}</span>
+                                </div>
+                            </div>
+                        </div>`;
+                    }
+
+                    html += '</div></div>';
+                }
+            }
+
+            html += '</div>';
             boardViz.innerHTML = html;
         }
 
@@ -1026,27 +1424,43 @@
             const issuesCard = document.getElementById('issuesCard');
             const issuesList = document.getElementById('issuesList');
             const issueCount = document.getElementById('issueCount');
+            const exportSection = document.getElementById('exportSection');
+
+            currentIssues = issues;
 
             if (issues.length === 0) {
                 issuesCard.style.display = 'block';
                 issueCount.textContent = '';
                 issuesList.innerHTML = `<div class="no-issues">All pins match ${board.name}</div>`;
+                exportSection.style.display = 'none';
                 return;
             }
 
             issuesCard.style.display = 'block';
             issueCount.textContent = `${issues.length}`;
 
+            const hasFixes = issues.some(i => i.fix);
+            exportSection.style.display = hasFixes ? 'block' : 'none';
+
             let html = '';
             for (const issue of issues) {
-                if (issue.type === 'mismatch') {
-                    html += `<div class="issue-item">
-                        <div class="issue-title">${issue.motor} → ${issue.slot}: ${issue.pin}</div>
-                        <div class="issue-detail">Expected ${issue.expected}, found ${issue.found}</div>
-                        <div class="issue-fix">${issue.fix}</div>
+                const issueClass = issue.type === 'mismatch' ? '' : (issue.type === 'info' ? 'info' : 'warning');
+
+                if (issue.fix) {
+                    html += `<div class="issue-item ${issueClass}">
+                        <div class="issue-header">
+                            <div>
+                                <div class="issue-title">${issue.motor} → ${issue.slot}: ${issue.pin}</div>
+                                <div class="issue-detail">Expected ${issue.expected}, found ${issue.found}</div>
+                            </div>
+                        </div>
+                        <div class="issue-fix">
+                            <code>${issue.fix}</code>
+                            <button class="btn-small btn-copy" onclick="copyToClipboard('${issue.fix}', this)">Copy</button>
+                        </div>
                     </div>`;
                 } else {
-                    html += `<div class="issue-item warning">
+                    html += `<div class="issue-item ${issueClass}">
                         <div class="issue-title">${issue.motor}</div>
                         <div class="issue-detail">${issue.message}</div>
                     </div>`;
@@ -1055,10 +1469,24 @@
             issuesList.innerHTML = html;
         }
 
+        function toggleExport() {
+            const textarea = document.getElementById('exportTextarea');
+            if (textarea.style.display === 'none') {
+                // Generate export text
+                const fixes = currentIssues.filter(i => i.fix).map(i => `# ${i.motor} [${i.slot}]\n${i.fix}`);
+                textarea.value = fixes.join('\n\n');
+                textarea.style.display = 'block';
+            } else {
+                textarea.style.display = 'none';
+            }
+        }
+
         function renderComparisonTable(board, motors, slotMap) {
             const container = document.getElementById('tableContainer');
-            if (motors.length === 0) {
-                container.innerHTML = `<div class="empty-state"><p>No motors configured</p></div>`;
+            const mainMcuMotors = motors.filter(m => !m.isExternal);
+
+            if (mainMcuMotors.length === 0) {
+                container.innerHTML = `<div class="empty-state"><p>No motors on main MCU</p></div>`;
                 return;
             }
 
@@ -1066,7 +1494,7 @@
                 <thead><tr><th>Motor</th><th>Slot</th><th>Pin</th><th>Config</th><th>Board</th><th>Status</th></tr></thead>
                 <tbody>`;
 
-            for (const motor of motors) {
+            for (const motor of mainMcuMotors) {
                 let matchedSlot = null;
                 for (let i = 0; i < board.drivers.length; i++) {
                     if (normalizePin(board.drivers[i].step) === motor.stepPin) {
@@ -1076,16 +1504,16 @@
                 }
 
                 const pins = [
-                    { type: 'step', label: 'STEP', config: motor.stepPin, expected: matchedSlot?.step },
-                    { type: 'dir', label: 'DIR', config: motor.dirPin, expected: matchedSlot?.dir },
-                    { type: 'enable', label: 'EN', config: motor.enablePin, expected: matchedSlot?.enable }
+                    { type: 'step', label: 'STEP', config: motor.stepPinRaw, configNorm: motor.stepPin, expected: matchedSlot?.step },
+                    { type: 'dir', label: 'DIR', config: motor.dirPinRaw, configNorm: motor.dirPin, expected: matchedSlot?.dir },
+                    { type: 'enable', label: 'EN', config: motor.enablePinRaw, configNorm: motor.enablePin, expected: matchedSlot?.enable }
                 ];
-                if (motor.driverConfig.uartPin) pins.push({ type: 'uart', label: 'UART', config: motor.driverConfig.uartPin, expected: matchedSlot?.uart });
-                if (motor.driverConfig.csPin) pins.push({ type: 'cs', label: 'CS', config: motor.driverConfig.csPin, expected: matchedSlot?.cs });
+                if (motor.driverConfig.uartPin) pins.push({ type: 'uart', label: 'UART', config: motor.driverConfig.uartPinRaw, configNorm: motor.driverConfig.uartPin, expected: matchedSlot?.uart });
+                if (motor.driverConfig.csPin) pins.push({ type: 'cs', label: 'CS', config: motor.driverConfig.csPinRaw, configNorm: motor.driverConfig.csPin, expected: matchedSlot?.cs });
 
                 for (let i = 0; i < pins.length; i++) {
                     const pin = pins[i];
-                    const isMatch = pin.expected && normalizePin(pin.expected) === pin.config;
+                    const isMatch = pin.expected && normalizePin(pin.expected) === pin.configNorm;
                     const rowClass = pin.expected && !isMatch ? 'mismatch-row' : '';
 
                     html += `<tr class="${rowClass}">
@@ -1103,23 +1531,77 @@
             container.innerHTML = html;
         }
 
-        function updateStats(motors, slotMap, issues) {
+        function getEndstopType(pin) {
+            if (!pin) return { type: 'none', label: 'None' };
+            if (pin.includes('virtual_endstop')) return { type: 'sensorless', label: 'Sensorless' };
+            if (pin.includes('probe:')) return { type: 'probe', label: 'Probe' };
+            return { type: 'physical', label: formatPinWithMods(pin) };
+        }
+
+        function updateStats(motors, slotMap, issues, externalMotors) {
             const statsCard = document.getElementById('statsCard');
             const statsRow = document.getElementById('statsRow');
+            const endstopList = document.getElementById('endstopList');
 
+            const mainMotors = motors.filter(m => !m.isExternal);
             const axisCounts = { x: 0, y: 0, z: 0, e: 0 };
             motors.forEach(m => axisCounts[m.axis]++);
             const usedSlots = slotMap.filter(s => s !== null).length;
 
-            statsRow.innerHTML = `
+            // Detect AWD (multiple X or Y motors)
+            const isAwd = axisCounts.x > 1 || axisCounts.y > 1;
+
+            let html = `
                 <div class="stat-chip"><span class="value">${motors.length}</span> motors</div>
-                <div class="stat-chip"><span class="value">${usedSlots}/8</span> slots</div>
+                <div class="stat-chip"><span class="value">${usedSlots}/${currentBoard.driverCount}</span> slots</div>
                 <div class="stat-chip"><span class="value">${axisCounts.x}</span> X</div>
                 <div class="stat-chip"><span class="value">${axisCounts.y}</span> Y</div>
                 <div class="stat-chip"><span class="value">${axisCounts.z}</span> Z</div>
                 <div class="stat-chip"><span class="value">${axisCounts.e}</span> E</div>
-                <div class="stat-chip"><span class="value" style="color: ${issues.length > 0 ? 'var(--error)' : 'var(--success)'}">${issues.length}</span> issues</div>
             `;
+
+            if (isAwd) {
+                html += `<div class="stat-chip awd"><span class="value">AWD</span></div>`;
+            }
+
+            if (externalMotors.length > 0) {
+                html += `<div class="stat-chip"><span class="value">${externalMotors.length}</span> external</div>`;
+            }
+
+            const errorCount = issues.filter(i => i.type === 'mismatch').length;
+            const warnCount = issues.filter(i => i.type === 'warning').length;
+            if (errorCount > 0) {
+                html += `<div class="stat-chip"><span class="value" style="color: var(--error)">${errorCount}</span> errors</div>`;
+            }
+            if (warnCount > 0) {
+                html += `<div class="stat-chip"><span class="value" style="color: var(--warning)">${warnCount}</span> warnings</div>`;
+            }
+            if (errorCount === 0 && warnCount === 0) {
+                html += `<div class="stat-chip"><span class="value" style="color: var(--success)">0</span> issues</div>`;
+            }
+
+            statsRow.innerHTML = html;
+
+            // Endstop summary
+            let endstopHtml = '';
+            for (const motor of motors) {
+                if (motor.axis === 'e') continue; // Skip extruder
+                const endstop = getEndstopType(motor.endstopPin);
+                if (endstop.type === 'none' && motor.num) continue; // Skip secondary motors without endstops
+
+                endstopHtml += `<div class="endstop-item">
+                    <span class="motor">${motor.name}</span>
+                    <span class="type ${endstop.type}">${endstop.label}</span>
+                </div>`;
+            }
+
+            if (endstopHtml) {
+                endstopList.innerHTML = endstopHtml;
+                endstopList.style.display = 'flex';
+            } else {
+                endstopList.style.display = 'none';
+            }
+
             statsCard.style.display = 'block';
         }
 
@@ -1157,16 +1639,16 @@
             currentBoard = BOARDS[boardId];
             parsedConfig = { sections, motors };
 
-            const { slotMap, issues } = mapMotorsToSlots(motors, currentBoard);
+            const { slotMap, issues, externalMotors } = mapMotorsToSlots(motors, currentBoard);
 
             document.getElementById('emptyState').style.display = 'none';
             document.getElementById('boardViz').style.display = 'block';
             document.getElementById('vizTitle').textContent = currentBoard.name;
 
-            renderBoardViz(currentBoard, slotMap, issues);
+            renderBoardViz(currentBoard, slotMap, issues, externalMotors);
             renderIssues(issues, currentBoard);
             renderComparisonTable(currentBoard, motors, slotMap);
-            updateStats(motors, slotMap, issues);
+            updateStats(motors, slotMap, issues, externalMotors);
         }
 
         function onBoardChange() {
@@ -1175,13 +1657,13 @@
 
             if (parsedConfig && document.getElementById('boardSelect').value !== 'auto') {
                 currentBoard = BOARDS[document.getElementById('boardSelect').value];
-                const { slotMap, issues } = mapMotorsToSlots(parsedConfig.motors, currentBoard);
+                const { slotMap, issues, externalMotors } = mapMotorsToSlots(parsedConfig.motors, currentBoard);
 
                 document.getElementById('vizTitle').textContent = currentBoard.name;
-                renderBoardViz(currentBoard, slotMap, issues);
+                renderBoardViz(currentBoard, slotMap, issues, externalMotors);
                 renderIssues(issues, currentBoard);
                 renderComparisonTable(currentBoard, parsedConfig.motors, slotMap);
-                updateStats(parsedConfig.motors, slotMap, issues);
+                updateStats(parsedConfig.motors, slotMap, issues, externalMotors);
             }
         }
 
@@ -1202,9 +1684,11 @@
             document.getElementById('boardSelect').value = 'auto';
             document.getElementById('detectedBadge').style.display = 'none';
             document.getElementById('tableContainer').innerHTML = `<div class="empty-state"><p>No data</p></div>`;
+            document.getElementById('exportTextarea').style.display = 'none';
             currentBoard = null;
             parsedConfig = null;
             lastDetectionResults = null;
+            currentIssues = [];
         }
     </script>
 </body>
